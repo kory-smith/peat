@@ -42,8 +42,6 @@ const workProject = projects.find((project) => {
   return project.name === "Work";
 })
 
-const workSubProjects = projects.filter((project) => {
+export const workSubProjects = projects.filter((project) => {
   return project.parent == workProject.id
 })
-
-console.log(workSubProjects)
