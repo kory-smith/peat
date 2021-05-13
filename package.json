@@ -4,8 +4,13 @@
   "main": "index.js",
   "repository": "https://github.com/kory-smith/bridge.git",
   "author": "Kory Smith <kory.smith@kroger.com>",
+  "scripts": {
+    "todoist": "node -r dotenv/config todoist.mjs",
+    "notion": "node -r dotenv/config notion.mjs"
+  },
   "license": "MIT",
   "dependencies": {
+    "@notionhq/client": "^0.1.3",
     "dotenv": "^9.0.2",
     "got": "^11.8.2",
     "hpagent": "^0.1.1"
