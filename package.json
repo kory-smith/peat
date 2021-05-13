@@ -1,0 +1,13 @@
+{
+  "name": "bridge",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/kory-smith/bridge.git",
+  "author": "Kory Smith <kory.smith@kroger.com>",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^9.0.2",
+    "got": "^11.8.2",
+    "hpagent": "^0.1.1"
+  }
+}
