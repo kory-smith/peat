@@ -2,6 +2,10 @@ import { workSubProjects } from "./todoist.mjs";
 import { Client } from '@notionhq/client';
 import { massagedWrojects, keyedNotionWrojects, wrojectTitles, saneInProgressWrojects, WROJECTS_DATABASE_ID } from "./notion.mjs";
 
+const notionClient = new Client({
+  auth: process.env.NOTION_TOKEN
+})
+
 const projectsToExclude = ["One-offs", "Wickler", "Someday/Maybe"];
 
 const filteredWorkSubProjects = workSubProjects.filter(
@@ -57,6 +61,49 @@ for (let wrojectTitle of allWrojectTitles) {
   }
 }
 
+for (let project in masterObject) {
+  const {notion, todoist} = masterObject[project]
+  // cases: in todoist and notion. do nothing.
+  // In todoist not notion: add to notion
+  if (todoist.status === "In-progress" && !notion.status) {
+    notionClient.pages.create({
+          parent: {
+            database_id: WROJECTS_DATABASE_ID
+          },
+          properties: {
+            Wroject: {
+              title: [
+                {
+                  text: {
+                    content: project
+                  }
+                }
+              ]
+            },
+            Status: {
+              id: "Wftb",
+              type: "select",
+              select: {
+                id: "57c5faf7-32e9-40ff-bf8b-18098cbffb36",
+                name: "In-progress",
+                color: "orange"
+              }
+            }
+          }
+        })
+  } else if (todoist.status === "Completed" && notion) {
+    // console.log({ notion, todoist }, notion.pageId)
+    notionClient.pages.update({
+      page_id: notion.pageId,
+      properties: {
+        Status: {select: {
+          name: "Completed"
+        }}
+      }
+    })
+  }
+}
+
 // for (let key in keyedNotionWrojects) {
 //   const todoistProject = workSubProjects.find((proj) => {
 //     return proj.name === key;
@@ -85,9 +132,6 @@ for (let wrojectTitle of allWrojectTitles) {
 //     };
 //   }
 // }
-
-console.log(masterObject);
-
 
 const instructions = filteredWorkSubProjects.map((todoistProject) => {
   // We need to determine what to do from here.
@@ -122,9 +166,6 @@ const wrojectsToAddToNotion = massaged.filter(thing => {
   return !thing.includedInNotion
 })
 
-const notion = new Client({
-  auth: process.env.NOTION_TOKEN
-})
 
 // This handles pushing projects from Todoist to Notion
 // wrojectsToAddToNotion.forEach(async (thing) => {
