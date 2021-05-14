@@ -1,6 +1,6 @@
 import got from "got";
 import { HttpsProxyAgent } from "hpagent";
-import fs from "fs";
+import _ from "lodash";
 
 // For use only if i'm at work
 const httpsAgentConfig = new HttpsProxyAgent({
@@ -35,14 +35,19 @@ const projectsResponse = await got.get(
 );
 const projects = projectsResponse.body;
 
-// Stopgap
-// let rawdata = fs.readFileSync('data.json');
-// let projects = JSON.parse(rawdata);
+const WORK_PROJECT_ID = projects.find((project) => project.name === "Work").id
+const PERSONAL_PROJECT_ID = projects.find((project) => project.name === "Personal").id
 
-const workProject = projects.find((project) => {
-  return project.name === "Work";
-});
+const projectsWithHelperData = projects.map((project) => {
+  return {
+    ...project,
+    work: project.parent === WORK_PROJECT_ID,
+    personal: project.parent === PERSONAL_PROJECT_ID
+  }
+})
+
+export const allTodoistProjectsKeyed = _.keyBy(projectsWithHelperData, (project) => project.name)
 
 export const workSubProjects = projects.filter((project) => {
-  return project.parent == workProject.id;
+  return project.parent == WORK_PROJECT_ID;
 });
