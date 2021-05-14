@@ -75,6 +75,7 @@ for (let wrojectTitle of allWrojectTitles) {
 for (let project in masterObject) {
   const { notion, todoist } = masterObject[project];
   if (todoist.status === "In-progress" && !notion.status) {
+    // the returnvalue.id of notionClient.pages.create() is what I want
     notionClient.pages.create({
       parent: {
         database_id: WROJECTS_DATABASE_ID,
