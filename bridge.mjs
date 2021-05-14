@@ -11,18 +11,31 @@ const notionClient = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
-const projectsToExclude = ["One-offs", "Wickler", "Someday/Maybe", "🎟 Pone-offs", "Pickler", "🌱 Pomeday/Maybe"];
+const projectsToExclude = [
+  "One-offs",
+  "Wickler",
+  "Someday/Maybe",
+  "🎟 Pone-offs",
+  "Pickler",
+  "🌱 Pomeday/Maybe",
+];
 
-projectsToExclude.forEach(exclusion =>  delete allTodoistProjectsKeyed[exclusion])
+projectsToExclude.forEach(
+  (exclusion) => delete allTodoistProjectsKeyed[exclusion]
+);
 
-const allProjectTitles = new Set()
-Object.keys(allNotionProjectsKeyed).forEach(projectTitle => allProjectTitles.add(projectTitle))
-Object.keys(allTodoistProjectsKeyed).forEach(projectTitle => allProjectTitles.add(projectTitle))
+const allProjectTitles = new Set();
+Object.keys(allNotionProjectsKeyed).forEach((projectTitle) =>
+  allProjectTitles.add(projectTitle)
+);
+Object.keys(allTodoistProjectsKeyed).forEach((projectTitle) =>
+  allProjectTitles.add(projectTitle)
+);
 
 const masterObject = {};
 
 for (let projectTitle of allProjectTitles) {
-  const todoistProject = allTodoistProjectsKeyed[projectTitle]
+  const todoistProject = allTodoistProjectsKeyed[projectTitle];
   const notionProject = allNotionProjectsKeyed[projectTitle];
   // In this case, we simply change the notion project's status to "Complete"
   if (!todoistProject && notionProject) {
@@ -71,26 +84,26 @@ for (let projectTitle of allProjectTitles) {
 
 async function createNotionChildPage(parentDatabaseId, childTitle, status) {
   return await notionClient.pages.create({
-      parent: {
-        database_id: parentDatabaseId,
-      },
-      properties: {
-        Name: {
-          title: [
-            {
-              text: {
-                content: childTitle,
-              },
+    parent: {
+      database_id: parentDatabaseId,
+    },
+    properties: {
+      Name: {
+        title: [
+          {
+            text: {
+              content: childTitle,
             },
-          ],
-        },
-        Status: {
-          select: {
-            name: status
           },
+        ],
+      },
+      Status: {
+        select: {
+          name: status,
         },
       },
-    });
+    },
+  });
 }
 
 // This does the updating
@@ -99,18 +112,26 @@ for (let project in masterObject) {
   // There's not a page and we should create one
   if (todoist.status === "In-progress" && !notion.status) {
     // the returnvalue.id of notionClient.pages.create() is what I want
-    const databaseIdToUse = todoist.work ? WROJECTS_DATABASE_ID : PROJECTS_DATABASE_ID
-    const createNotionPageResponse = await createNotionChildPage(databaseIdToUse, todoist.name, "In-progress" ) 
+    const databaseIdToUse = todoist.work
+      ? WROJECTS_DATABASE_ID
+      : PROJECTS_DATABASE_ID;
+    const createNotionPageResponse = await createNotionChildPage(
+      databaseIdToUse,
+      todoist.name,
+      "In-progress"
+    );
     // Might as well make the update while we're here...
     await got.post("https://api.todoist.com/rest/v1/tasks", {
       json: {
-        content: `* [Link to Notion project](https://www.notion.so/${todoist.name.replace(/\W/, "").replace(" ", "-")}-${createNotionPageResponse.id})`,
+        content: `* [Link to Notion project](https://www.notion.so/${todoist.name
+          .replace(/\W/, "")
+          .replace(" ", "-")}-${createNotionPageResponse.id})`,
         project_id: Number(todoist.id),
       },
       headers: {
-        Authorization: `Bearer ${process.env.TODOIST_TOKEN}`
-    },
-    })
+        Authorization: `Bearer ${process.env.TODOIST_TOKEN}`,
+      },
+    });
   } else if (todoist.status === "Completed" && notion.status !== "Completed") {
     notionClient.pages.update({
       page_id: notion.id,

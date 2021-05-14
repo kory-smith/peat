@@ -35,20 +35,27 @@ const projectsResponse = await got.get(
 );
 const projects = projectsResponse.body;
 
-const WORK_PROJECT_ID = projects.find((project) => project.name === "Work").id
-const PERSONAL_PROJECT_ID = projects.find((project) => project.name === "Personal").id
+const WORK_PROJECT_ID = projects.find((project) => project.name === "Work").id;
+const PERSONAL_PROJECT_ID = projects.find(
+  (project) => project.name === "Personal"
+).id;
 
 const projectsWithHelperData = projects.map((project) => {
   return {
     ...project,
     work: project.parent === WORK_PROJECT_ID,
-    personal: project.parent === PERSONAL_PROJECT_ID
-  }
-})
+    personal: project.parent === PERSONAL_PROJECT_ID,
+  };
+});
 
-const onlyRelevantProjects = projectsWithHelperData.filter(project => project.work || project.personal)
+const onlyRelevantProjects = projectsWithHelperData.filter(
+  (project) => project.work || project.personal
+);
 
-export const allTodoistProjectsKeyed = _.keyBy(onlyRelevantProjects, (project) => project.name)
+export const allTodoistProjectsKeyed = _.keyBy(
+  onlyRelevantProjects,
+  (project) => project.name
+);
 
 export const workSubProjects = projects.filter((project) => {
   return project.parent == WORK_PROJECT_ID;
