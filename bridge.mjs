@@ -1,12 +1,11 @@
-import { workSubProjects } from "./todoist.mjs";
+import { workSubProjects, allTodoistProjectsKeyed } from "./todoist.mjs";
 import { Client } from "@notionhq/client";
 import {
-  massagedWrojects,
-  keyedNotionWrojects,
-  wrojectTitles,
-  saneInProgressWrojects,
+  allNotionProjectsKeyed,
   WROJECTS_DATABASE_ID,
+  PROJECTS_DATABASE_ID,
 } from "./notion.mjs";
+import got from "got";
 
 const notionClient = new Client({
   auth: process.env.NOTION_TOKEN,
@@ -14,93 +13,104 @@ const notionClient = new Client({
 
 const projectsToExclude = ["One-offs", "Wickler", "Someday/Maybe", "🎟 Pone-offs", "Pickler", "🌱 Pomeday/Maybe"];
 
-const filteredWorkSubProjects = workSubProjects.filter(
-  (project) => !projectsToExclude.includes(project.name)
-);
+projectsToExclude.forEach(exclusion =>  delete allTodoistProjectsKeyed[exclusion])
 
-const allWrojectTitles = [];
-wrojectTitles.forEach((title) => allWrojectTitles.push(title));
-filteredWorkSubProjects
-  .map((proj) => proj.name)
-  .forEach((name) => allWrojectTitles.push(name));
+const allProjectTitles = new Set()
+Object.keys(allNotionProjectsKeyed).forEach(projectTitle => allProjectTitles.add(projectTitle))
+Object.keys(allTodoistProjectsKeyed).forEach(projectTitle => allProjectTitles.add(projectTitle))
 
 const masterObject = {};
 
-for (let wrojectTitle of allWrojectTitles) {
-  const todoistProject = filteredWorkSubProjects.find(
-    (proj) => proj.name === wrojectTitle
-  );
-  const notionProject = keyedNotionWrojects[wrojectTitle];
+for (let projectTitle of allProjectTitles) {
+  const todoistProject = allTodoistProjectsKeyed[projectTitle]
+  const notionProject = allNotionProjectsKeyed[projectTitle];
+  // In this case, we simply change the notion project's status to "Complete"
   if (!todoistProject && notionProject) {
-    masterObject[wrojectTitle] = {
+    masterObject[projectTitle] = {
       notion: {
-        ...keyedNotionWrojects[wrojectTitle],
+        ...allNotionProjectsKeyed[projectTitle],
       },
       todoist: {
-        name: wrojectTitle,
+        name: projectTitle,
         id: null,
+        work: false,
+        personal: false,
         status: "Completed",
       },
     };
+    // In this case, we need more data.
   } else if (todoistProject && !notionProject) {
-    masterObject[wrojectTitle] = {
+    masterObject[projectTitle] = {
       notion: {
-        name: wrojectTitle,
+        name: projectTitle,
         id: null,
         status: null,
       },
       todoist: {
-        name: wrojectTitle,
+        name: projectTitle,
         id: todoistProject.id,
         status: "In-progress",
+        work: todoistProject.work,
+        personal: todoistProject.personal,
       },
     };
   }
   // they're both defined
   else {
-    masterObject[wrojectTitle] = {
+    masterObject[projectTitle] = {
       notion: {
-        ...keyedNotionWrojects[wrojectTitle],
+        ...allNotionProjectsKeyed[projectTitle],
       },
       todoist: {
-        name: wrojectTitle,
-        id: todoistProject.id,
+        ...allTodoistProjectsKeyed[projectTitle],
         status: "In-progress",
       },
     };
   }
 }
 
-// This does the updating
-for (let project in masterObject) {
-  const { notion, todoist } = masterObject[project];
-  if (todoist.status === "In-progress" && !notion.status) {
-    // the returnvalue.id of notionClient.pages.create() is what I want
-    notionClient.pages.create({
+async function createNotionChildPage(parentDatabaseId, childTitle, status) {
+  return await notionClient.pages.create({
       parent: {
-        database_id: WROJECTS_DATABASE_ID,
+        database_id: parentDatabaseId,
       },
       properties: {
-        Wroject: {
+        Name: {
           title: [
             {
               text: {
-                content: project,
+                content: childTitle,
               },
             },
           ],
         },
         Status: {
-          id: "Wftb",
-          type: "select",
           select: {
-            id: "57c5faf7-32e9-40ff-bf8b-18098cbffb36",
-            name: "In-progress",
-            color: "orange",
+            name: status
           },
         },
       },
     });
+}
+
+// This does the updating
+for (let project in masterObject) {
+  const { notion, todoist } = masterObject[project];
+  // There's not a page and we should create one
+  if (todoist.status === "In-progress" && !notion.status) {
+    // the returnvalue.id of notionClient.pages.create() is what I want
+    const databaseIdToUse = todoist.work ? WROJECTS_DATABASE_ID : PROJECTS_DATABASE_ID
+    const createNotionPageResponse = await createNotionChildPage(databaseIdToUse, todoist.name, "In-progress" ) 
+    // Might as well make the update while we're here...
+    await got.post("https://api.todoist.com/rest/v1/tasks", {
+      json: {
+        content: `* [Link to Notion project](https://www.notion.so/${todoist.name.replace(/\W/, "").replace(" ", "-")}-${createNotionPageResponse.id})`,
+        project_id: Number(todoist.id),
+      },
+      headers: {
+        Authorization: `Bearer ${process.env.TODOIST_TOKEN}`
+    },
+    })
   } else if (todoist.status === "Completed" && notion.status !== "Completed") {
     notionClient.pages.update({
       page_id: notion.id,
@@ -128,107 +138,3 @@ for (let project in masterObject) {
     });
   }
 }
-
-// for (let key in keyedNotionWrojects) {
-//   const todoistProject = workSubProjects.find((proj) => {
-//     return proj.name === key;
-//   });
-//   if (todoistProject === undefined) {
-//     masterObject[key] = {
-//       Notion: {
-//         ...keyedNotionWrojects[key],
-//       },
-//       Todoist: {
-//         name: key,
-//         id: null,
-//         status: "Completed",
-//       },
-//     };
-//   } else {
-//     masterObject[key] = {
-//       Notion: {
-//         ...keyedNotionWrojects[key],
-//       },
-//       Todoist: {
-//         name: todoistProject.name,
-//         id: String(todoistProject.id),
-//         status: "In-progress",
-//       },
-//     };
-//   }
-// }
-
-const instructions = filteredWorkSubProjects.map((todoistProject) => {
-  // We need to determine what to do from here.
-  // First, if this is already in notion
-  if (
-    keyedNotionWrojects[todoistProject.name] &&
-    keyedNotionWrojects[todoistProject.name].status === "In-progress"
-  ) {
-    // Do nothing
-  }
-  // Next, if in todoist but not notion?
-  if (!keyedNotionWrojects[todoistProject.name]) {
-    // add it to notion
-  }
-  // Next, if it's in Notion but not todoist? Would that be everything else?
-});
-
-const massaged = filteredWorkSubProjects.map((todoistProject) => {
-  if (wrojectTitles.includes(todoistProject.name)) {
-    return {
-      name: todoistProject.name,
-      todoistUrl: todoistProject.url,
-      includedInNotion: true,
-    };
-  } else
-    return {
-      name: todoistProject.name,
-      todoistUrl: todoistProject.url,
-      includedInNotion: false,
-    };
-});
-
-const wrojectsToAddToNotion = massaged.filter((thing) => {
-  return !thing.includedInNotion;
-});
-
-// This handles pushing projects from Todoist to Notion
-// wrojectsToAddToNotion.forEach(async (thing) => {
-//   const thung = await notion.pages.create({
-//     parent: {
-//       database_id: WROJECTS_DATABASE_ID
-//     },
-//     properties: {
-//       Wroject: {
-//         title: [
-//           {
-//             text: {
-//               content: thing.name
-//             }
-//           }
-//         ]
-//       },
-//       Status: {
-//         id: "Wftb",
-//         type: "select",
-//         select: {
-//           id: "57c5faf7-32e9-40ff-bf8b-18098cbffb36",
-//           name: "In-progress",
-//           color: "orange"
-//         }
-//       }
-//     }
-//   })
-// })
-
-async function bridge() {
-  // Waiting for stuff
-}
-
-/* 
-What are the cases?
-- Project exists in Todoist but not notion
-- Project exists in Notion but not Todoist
-- Project exists in both already
-*/
