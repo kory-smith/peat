@@ -71,10 +71,9 @@ for (let wrojectTitle of allWrojectTitles) {
   }
 }
 
+// This does the updating
 for (let project in masterObject) {
   const { notion, todoist } = masterObject[project];
-  // cases: in todoist and notion. do nothing.
-  // In todoist not notion: add to notion
   if (todoist.status === "In-progress" && !notion.status) {
     notionClient.pages.create({
       parent: {
