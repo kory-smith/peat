@@ -27,7 +27,7 @@ const projectsResponse = await got.get(
   "https://api.todoist.com/rest/v1/projects",
   {
     responseType: "json",
-    agent: { https: httpsAgentConfig },
+    // agent: { https: httpsAgentConfig },
     headers: {
       Authorization: `Bearer ${process.env.TODOIST_TOKEN}`,
     },
