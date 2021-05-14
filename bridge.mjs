@@ -121,7 +121,7 @@ for (let project in masterObject) {
       "In-progress"
     );
     // Might as well make the update while we're here...
-    await got.post("https://api.todoist.com/rest/v1/tasks", {
+    const _ = await got.post("https://api.todoist.com/rest/v1/tasks", {
       json: {
         content: `* [Link to Notion project](https://www.notion.so/${todoist.name
           .replace(/\W/, "")
