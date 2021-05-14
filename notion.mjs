@@ -1,12 +1,6 @@
 import { HttpsProxyAgent } from "hpagent";
 import { Client } from "@notionhq/client";
-import fs from "fs";
 import _ from "lodash";
-import { profile } from "console";
-
-const httpsAgentConfig = new HttpsProxyAgent({
-  proxy: `http://KS61347:${process.env.KORY_PASSWORD}@cdcproxy.kroger.com:3128`,
-});
 
 export const WROJECTS_DATABASE_ID = "a5994ff1-52d0-4827-a47d-253941e69e20";
 export const PROJECTS_DATABASE_ID = "27498ca8-235f-4e49-a0f6-ab10b9d40063";
@@ -15,56 +9,28 @@ const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
-const wrojectsResponse = await notion.databases.query({
-  database_id: "a5994ff152d04827a47d253941e69e20",
-});
+async function getDatabaseFromId(id) {
+  const databaseResponse = await notion.databases.query({
+    database_id: id,
+  });
 
-const wrojects = wrojectsResponse.results;
+  const database = databaseResponse.results;
 
-export const massagedWrojects = wrojects.map((wroject) => {
-  return {
-    name: wroject.properties.Wroject.title[0].text.content,
-    id: wroject.id,
-    status: wroject.properties.Status.select.name,
-  };
-});
+  const massagedDatabase = database.map((page) => {
+    return {
+      name: page.properties.Name.title[0].text.content,
+      id: page.id,
+      status: page.properties.Status.select.name,
+      work: page.parent.database_id === WROJECTS_DATABASE_ID,
+      personal: page.parent.database_id === PROJECTS_DATABASE_ID
+    };
+  });
 
-export const inProgressWrojects = wrojects.filter(
-  (wroject) => wroject.properties.Status.select.name === "In-progress"
-);
+  const keyedDatabase = _.keyBy(massagedDatabase, (page) => page.name);
+  return keyedDatabase
+}
 
-export const wrojectTitles = wrojects.map((wroject) => {
-  if (!wroject.properties.Wroject.title[0]) {
-    return;
-  }
-  return wroject.properties.Wroject.title[0].text.content;
-});
+const wrojects = await getDatabaseFromId(WROJECTS_DATABASE_ID)
+const projects = await getDatabaseFromId(PROJECTS_DATABASE_ID)
 
-export const saneInProgressWrojects = inProgressWrojects.map((wroject) => {
-  return {
-    name: wroject.properties.Wroject.title[0].text.content,
-    id: wroject.id,
-    status: wroject.properties.Status.select.name,
-  };
-});
-
-export const keyedNotionWrojects = _.keyBy(
-  massagedWrojects,
-  (proj) => proj.name
-);
-
-/* 
- {
-   "Test Wroject": {
-     Notion: {
-       id: iii,
-       name: iii,
-       status: iii,
-     },
-     Todoist: {
-       id: iii
-       name: iii
-       status: live | absent
-     }
-   }
- } */
+export const allNotionProjectsKeyed = Object.assign({}, wrojects, projects)
