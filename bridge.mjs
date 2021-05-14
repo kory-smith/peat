@@ -12,7 +12,7 @@ const notionClient = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
-const projectsToExclude = ["One-offs", "Wickler", "Someday/Maybe"];
+const projectsToExclude = ["One-offs", "Wickler", "Someday/Maybe", "🎟 Pone-offs", "Pickler", "🌱 Pomeday/Maybe"];
 
 const filteredWorkSubProjects = workSubProjects.filter(
   (project) => !projectsToExclude.includes(project.name)
