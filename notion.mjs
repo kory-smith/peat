@@ -8,7 +8,8 @@ const httpsAgentConfig = new HttpsProxyAgent({
   proxy: `http://KS61347:${process.env.KORY_PASSWORD}@cdcproxy.kroger.com:3128`,
 });
 
-export const WROJECTS_DATABASE_ID = "a5994ff152d04827a47d253941e69e20";
+export const WROJECTS_DATABASE_ID = "a5994ff1-52d0-4827-a47d-253941e69e20";
+export const PROJECTS_DATABASE_ID = "27498ca8-235f-4e49-a0f6-ab10b9d40063";
 
 const notion = new Client({
   auth: process.env.NOTION_TOKEN,
