@@ -46,7 +46,9 @@ const projectsWithHelperData = projects.map((project) => {
   }
 })
 
-export const allTodoistProjectsKeyed = _.keyBy(projectsWithHelperData, (project) => project.name)
+const onlyRelevantProjects = projectsWithHelperData.filter(project => project.work || project.personal)
+
+export const allTodoistProjectsKeyed = _.keyBy(onlyRelevantProjects, (project) => project.name)
 
 export const workSubProjects = projects.filter((project) => {
   return project.parent == WORK_PROJECT_ID;
