@@ -23,7 +23,7 @@ const wrojects = wrojectsResponse.results;
 export const massagedWrojects = wrojects.map((wroject) => {
   return {
     name: wroject.properties.Wroject.title[0].text.content,
-    pageId: wroject.id,
+    id: wroject.id,
     status: wroject.properties.Status.select.name,
   };
 });
@@ -42,7 +42,7 @@ export const wrojectTitles = wrojects.map((wroject) => {
 export const saneInProgressWrojects = inProgressWrojects.map((wroject) => {
   return {
     name: wroject.properties.Wroject.title[0].text.content,
-    pageId: wroject.id,
+    id: wroject.id,
     status: wroject.properties.Status.select.name,
   };
 });
@@ -56,12 +56,12 @@ export const keyedNotionWrojects = _.keyBy(
  {
    "Test Wroject": {
      Notion: {
-       pageId: iii,
+       id: iii,
        name: iii,
        status: iii,
      },
      Todoist: {
-       projectId: iii
+       id: iii
        name: iii
        status: live | absent
      }

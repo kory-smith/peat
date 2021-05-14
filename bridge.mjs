@@ -38,7 +38,7 @@ for (let wrojectTitle of allWrojectTitles) {
       },
       todoist: {
         name: wrojectTitle,
-        projectId: null,
+        id: null,
         status: "Completed",
       },
     };
@@ -46,12 +46,12 @@ for (let wrojectTitle of allWrojectTitles) {
     masterObject[wrojectTitle] = {
       notion: {
         name: wrojectTitle,
-        pageId: null,
+        id: null,
         status: null,
       },
       todoist: {
         name: wrojectTitle,
-        projectId: todoistProject.id,
+        id: todoistProject.id,
         status: "In-progress",
       },
     };
@@ -64,7 +64,7 @@ for (let wrojectTitle of allWrojectTitles) {
       },
       todoist: {
         name: wrojectTitle,
-        projectId: todoistProject.id,
+        id: todoistProject.id,
         status: "In-progress",
       },
     };
@@ -101,14 +101,27 @@ for (let project in masterObject) {
         },
       },
     });
-  } else if (todoist.status === "Completed" && notion) {
-    // console.log({ notion, todoist }, notion.pageId)
+  } else if (todoist.status === "Completed" && notion.status !== "Completed") {
     notionClient.pages.update({
-      page_id: notion.pageId,
+      page_id: notion.id,
       properties: {
         Status: {
           select: {
             name: "Completed",
+          },
+        },
+      },
+    });
+  } else if (
+    todoist.status === "In-progress" &&
+    notion.status !== "In-progress"
+  ) {
+    notionClient.pages.update({
+      page_id: notion.id,
+      properties: {
+        Status: {
+          select: {
+            name: "In-progress",
           },
         },
       },
@@ -127,7 +140,7 @@ for (let project in masterObject) {
 //       },
 //       Todoist: {
 //         name: key,
-//         projectId: null,
+//         id: null,
 //         status: "Completed",
 //       },
 //     };
@@ -138,7 +151,7 @@ for (let project in masterObject) {
 //       },
 //       Todoist: {
 //         name: todoistProject.name,
-//         projectId: String(todoistProject.id),
+//         id: String(todoistProject.id),
 //         status: "In-progress",
 //       },
 //     };
