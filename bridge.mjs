@@ -17,7 +17,7 @@ const masterObject = {}
 for (let wrojectTitle of allWrojectTitles) {
   const todoistProject = filteredWorkSubProjects.find(proj => proj.name === wrojectTitle)
   const notionProject = keyedNotionWrojects[wrojectTitle]
-  if (todoistProject === undefined && notionProject) {
+  if (!todoistProject && notionProject) {
     masterObject[wrojectTitle] = {
       notion: {
         ...keyedNotionWrojects[wrojectTitle],
@@ -28,7 +28,7 @@ for (let wrojectTitle of allWrojectTitles) {
         status: "Completed"
       }
     }
-  } else if (todoistProject && notionProject === undefined) {
+  } else if (todoistProject && !notionProject) {
     masterObject[wrojectTitle] = {
       notion: {
         name: wrojectTitle,
