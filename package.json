@@ -6,7 +6,8 @@
   "author": "Kory Smith <kory.smith@kroger.com>",
   "scripts": {
     "todoist": "node -r dotenv/config todoist.mjs",
-    "notion": "node -r dotenv/config notion.mjs"
+    "notion": "node -r dotenv/config notion.mjs",
+    "bridge": "node -r dotenv/config bridge.mjs"
   },
   "license": "MIT",
   "dependencies": {
