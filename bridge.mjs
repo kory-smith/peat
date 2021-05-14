@@ -131,7 +131,7 @@ for (let project in masterObject) {
       headers: {
         Authorization: `Bearer ${process.env.TODOIST_TOKEN}`,
       },
-    });
+    }).catch(e => console.log(e));
   } else if (todoist.status === "Completed" && notion.status !== "Completed") {
     notionClient.pages.update({
       page_id: notion.id,
