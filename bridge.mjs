@@ -124,7 +124,7 @@ for (let project in masterObject) {
     const _ = await got.post("https://api.todoist.com/rest/v1/tasks", {
       json: {
         content: `* [Link to Notion project](https://www.notion.so/${todoist.name
-          .replace(/\?|\'/, "")
+          .replace(/\?|\'|./g, "")
           .replace(" ", "-")}-${createNotionPageResponse.id})`,
         project_id: Number(todoist.id),
       },
