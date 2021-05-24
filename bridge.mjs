@@ -121,17 +121,22 @@ for (let project in masterObject) {
       "In-progress"
     );
     // Might as well make the update while we're here...
-    const _ = await got.post("https://api.todoist.com/rest/v1/tasks", {
-      json: {
-        content: `* [Link to Notion project](https://www.notion.so/${todoist.name
-          .replace(/\?|\'|./g, "")
-          .replace(" ", "-")}-${createNotionPageResponse.id})`,
-        project_id: Number(todoist.id),
-      },
-      headers: {
-        Authorization: `Bearer ${process.env.TODOIST_TOKEN}`,
-      },
-    }).catch(e => console.log(e));
+    const _ = await got
+      .post("https://api.todoist.com/rest/v1/tasks", {
+        json: {
+          content: `* [Link to Notion project](https://www.notion.so/${todoist.name
+            .replace(/\'|\.|\?/g, "")
+            .replace(/\W/g, "-")}-${createNotionPageResponse.id.replace(
+            /-/g,
+            ""
+          )})`,
+          project_id: Number(todoist.id),
+        },
+        headers: {
+          Authorization: `Bearer ${process.env.TODOIST_TOKEN}`,
+        },
+      })
+      .catch((e) => console.log(e));
   } else if (todoist.status === "Completed" && notion.status !== "Completed") {
     notionClient.pages.update({
       page_id: notion.id,
