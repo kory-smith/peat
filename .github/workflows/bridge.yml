@@ -2,6 +2,7 @@ name: Bridge
 
 on:
   push:
+  repository_dispatch:
   schedule:
     - cron: '0 * * * *'
 
