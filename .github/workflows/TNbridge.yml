@@ -1,4 +1,4 @@
-name: Bridge
+name: TNbridge
 
 on:
   push:
@@ -7,15 +7,15 @@ on:
     - cron: '0 * * * *'
 
 jobs:
-  bridge:
+  TNbridge:
     name: Sync projects between Todoist and Notion
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: run bridge
+      - name: run TNbridge
         env:
           TODOIST_TOKEN: ${{secrets.TODOIST_TOKEN}}
           NOTION_TOKEN: ${{secrets.NOTION_TOKEN}}
         run: |
           yarn
-          yarn bridge
+          yarn TNbridge
