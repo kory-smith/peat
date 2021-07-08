@@ -57,6 +57,3 @@ export const allTodoistProjectsKeyed = _.keyBy(
   (project) => project.name
 );
 
-export const workSubProjects = projects.filter((project) => {
-  return project.parent == WORK_PROJECT_ID;
-});

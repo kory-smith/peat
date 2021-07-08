@@ -1,4 +1,4 @@
-import { workSubProjects, allTodoistProjectsKeyed } from "./todoist.mjs";
+import { allTodoistProjectsKeyed } from "./todoist.mjs";
 import { Client } from "@notionhq/client";
 import {
   allNotionProjectsKeyed,
