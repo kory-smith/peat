@@ -21,7 +21,7 @@ const projectsToExclude = [
 ];
 
 projectsToExclude.forEach(
-  (exclusion) => delete allTodoistProjectsKeyed[exclusion]
+  (excludedProjectName) => delete allTodoistProjectsKeyed[excludedProjectName]
 );
 
 const allProjectTitles = new Set();
