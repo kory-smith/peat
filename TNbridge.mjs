@@ -111,7 +111,6 @@ for (let project in masterObject) {
   const { notion, todoist } = masterObject[project];
   // There's not a page and we should create one
   if (todoist.status === "In-progress" && !notion.status) {
-    // the returnvalue.id of notionClient.pages.create() is what I want
     const databaseIdToUse = todoist.work
       ? WROJECTS_DATABASE_ID
       : PROJECTS_DATABASE_ID;
@@ -144,7 +143,6 @@ for (let project in masterObject) {
       },
     });
 
-    // Might as well make the update while we're here...
     const _ = await got
       .post("https://api.todoist.com/rest/v1/tasks", {
         json: {
