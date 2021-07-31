@@ -120,6 +120,30 @@ for (let project in masterObject) {
       todoist.name,
       "In-progress"
     );
+
+    notionClient.databases.create({
+      parent: {
+        page_id: createNotionPageResponse.id,
+      },
+      title: [
+        {
+          type: "text",
+          text: {
+            content: "Resources",
+            link: null,
+          },
+        },
+      ],
+      properties: {
+        Name: {
+          title: {},
+        },
+        Description: {
+          rich_text: {},
+        },
+      },
+    });
+
     // Might as well make the update while we're here...
     const _ = await got
       .post("https://api.todoist.com/rest/v1/tasks", {
