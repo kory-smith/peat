@@ -11,7 +11,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@notionhq/client": "^0.1.3",
+    "@notionhq/client": "^0.2.3",
     "dotenv": "^9.0.2",
     "got": "^11.8.2",
     "hpagent": "^0.1.1",
