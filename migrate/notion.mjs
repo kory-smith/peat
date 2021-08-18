@@ -1,4 +1,3 @@
-import { HttpsProxyAgent } from "hpagent";
 import { Client } from "@notionhq/client";
 import _ from "lodash";
 
