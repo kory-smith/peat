@@ -18,6 +18,7 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
+    "@kory-smith/todoist-api-ts": "^1.0.3",
     "@types/lodash": "^4.14.172"
   }
 }
