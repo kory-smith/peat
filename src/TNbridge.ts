@@ -73,7 +73,7 @@ const doWork = async () => {
     "🌱 Pomeday/Maybe",
   ];
 
-  const allTodoistProjectsKeyed = await getAllTodoistProjectsKeyed()
+  const allTodoistProjectsKeyed = await getAllTodoistProjectsKeyed();
 
   projectsToExclude.forEach(
     (excludedProjectName) => delete allTodoistProjectsKeyed[excludedProjectName]
