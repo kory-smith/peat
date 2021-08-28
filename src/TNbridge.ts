@@ -1,6 +1,7 @@
 import { getAllTodoistProjectsKeyed } from "./todoist";
 import {
   notionClient,
+  createNotionChildPage,
   getAllNotionProjectsKeyed,
   WROJECTS_DATABASE_ID,
   PROJECTS_DATABASE_ID,

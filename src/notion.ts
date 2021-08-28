@@ -13,6 +13,37 @@ export const notionClient = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
+export async function createNotionChildPage(
+  parentDatabaseId: string,
+  childTitle: string,
+  status: string
+) {
+  return await notionClient.pages.create({
+    parent: {
+      database_id: parentDatabaseId,
+    },
+    properties: {
+      Name: {
+        type: "title",
+        title: [
+          {
+            type: "text",
+            text: {
+              content: childTitle,
+            },
+          },
+        ],
+      },
+      Status: {
+        type: "select",
+        select: {
+          name: status,
+        },
+      },
+    },
+  });
+}
+
 async function getDatabaseFromId(id: string) {
   const databaseResponse = await notionClient.databases.query({
     database_id: id,
