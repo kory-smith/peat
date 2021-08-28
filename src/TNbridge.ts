@@ -1,46 +1,12 @@
 import { getAllTodoistProjectsKeyed } from "./todoist";
-import { Client } from "@notionhq/client";
 import {
+  notionClient,
   getAllNotionProjectsKeyed,
   WROJECTS_DATABASE_ID,
   PROJECTS_DATABASE_ID,
 } from "./notion";
 import got from "got";
 
-const notionClient = new Client({
-  auth: process.env.NOTION_TOKEN,
-});
-
-async function createNotionChildPage(
-  parentDatabaseId: string,
-  childTitle: string,
-  status: string
-) {
-  return await notionClient.pages.create({
-    parent: {
-      database_id: parentDatabaseId,
-    },
-    properties: {
-      Name: {
-        type: "title",
-        title: [
-          {
-            type: "text",
-            text: {
-              content: childTitle,
-            },
-          },
-        ],
-      },
-      Status: {
-        type: "select",
-        select: {
-          name: status,
-        },
-      },
-    },
-  });
-}
 
 type NotionProject = {
   name: string;
