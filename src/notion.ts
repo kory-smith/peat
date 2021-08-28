@@ -16,7 +16,7 @@ export const notionClient = new Client({
 export async function createNotionChildPage(
   parentDatabaseId: string,
   childTitle: string,
-  status: string
+  status: "In-progress" | "Completed"
 ) {
   return await notionClient.pages.create({
     parent: {
