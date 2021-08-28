@@ -1,5 +1,5 @@
 import { Client } from "@notionhq/client";
-import { DatabaseParent, RichTextText, SelectPropertyValue, TitlePropertyValue } from "@notionhq/client/build/src/api-types";
+import { RichTextText, SelectPropertyValue, TitlePropertyValue } from "@notionhq/client/build/src/api-types";
 import { keyBy } from "lodash";
 
 export const WROJECTS_DATABASE_ID = "a5994ff1-52d0-4827-a47d-253941e69e20";
@@ -22,21 +22,28 @@ async function getDatabaseFromId(id: string) {
     const titleObject = nameProperty.title[0] as RichTextText
     const title = titleObject.text.content
     // Parent properties
-    const datbaseParent = page.parent as DatabaseParent
-    return {
-      name: title,
-      id: page.id,
-      status: ( page.properties.Status as SelectPropertyValue ).select.name,
-      work: datbaseParent.database_id === WROJECTS_DATABASE_ID,
-      personal: datbaseParent.database_id === PROJECTS_DATABASE_ID,
-    };
+    const datbaseParent = page.parent
+    if (datbaseParent.type === "database_id") {
+      return {
+        name: title,
+        id: page.id,
+        status: ( page.properties.Status as SelectPropertyValue ).select.name!,
+        work: datbaseParent.database_id === WROJECTS_DATABASE_ID,
+        personal: datbaseParent.database_id === PROJECTS_DATABASE_ID,
+      };
+    }
+    return {};
   });
 
-  const keyedDatabase = keyBy(massagedDatabase, (page) => page.name);
+  const keyedDatabase = keyBy(massagedDatabase, (page) => page?.name);
   return keyedDatabase;
 }
 
-const wrojects = await getDatabaseFromId(WROJECTS_DATABASE_ID);
-const projects = await getDatabaseFromId(PROJECTS_DATABASE_ID);
 
-export const allNotionProjectsKeyed = Object.assign({}, wrojects, projects);
+export const getAllNotionProjectsKeyed = async () => {
+  const wrojects = await getDatabaseFromId(WROJECTS_DATABASE_ID);
+  const projects = await getDatabaseFromId(PROJECTS_DATABASE_ID);
+  return Object.assign({}, wrojects, projects);
+
+}
+
