@@ -36,7 +36,6 @@ async function getDatabaseFromId(id: string) {
         personal: datbaseParent.database_id === PROJECTS_DATABASE_ID,
       };
     }
-    return {};
   });
 
   const keyedDatabase = keyBy(massagedDatabase, (page) => page?.name);
