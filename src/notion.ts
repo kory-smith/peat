@@ -14,6 +14,47 @@ export const notionClient = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
+type MassagedNotionDatabase = {
+  name: string;
+  id: string;
+  status: string;
+  work: Boolean;
+  personal: Boolean;
+};
+
+async function getDatabaseFromId(id: string): Promise<Page[]> {
+  const databaseResponse = await notionClient.databases.query({
+    database_id: id,
+  });
+  return databaseResponse.results;
+}
+
+function massagePage(page: Page): MassagedNotionDatabase {
+  // Title properties
+  const nameProperty = page.properties.Name as TitlePropertyValue;
+  const titleObject = nameProperty.title[0] as RichTextText;
+  const title = titleObject.text.content;
+  // Parent properties
+  const datbaseParent = page.parent;
+  if (datbaseParent.type === "database_id") {
+    return {
+      name: title,
+      id: page.id,
+      status: (page.properties.Status as SelectPropertyValue).select.name!,
+      work: datbaseParent.database_id === WROJECTS_DATABASE_ID,
+      personal: datbaseParent.database_id === PROJECTS_DATABASE_ID,
+    };
+  } else
+    throw Error(
+      `massageDatabase should only be called from pages with database parents.
+        You called it with a ${datbaseParent.type} parent`
+    );
+}
+
+function keyByName<T extends { name: string }[]>(database: T) {
+  return keyBy(database, (page) => page.name);
+}
+
 export async function createNotionChildPage(
   parentDatabaseId: string,
   childTitle: string,
@@ -43,47 +84,6 @@ export async function createNotionChildPage(
       },
     },
   });
-}
-
-type MassagedNotionDatabase = {
-  name: string;
-  id: string;
-  status: string;
-  work: Boolean;
-  personal: Boolean;
-};
-
-function massagePage(page: Page): MassagedNotionDatabase {
-  // Title properties
-  const nameProperty = page.properties.Name as TitlePropertyValue;
-  const titleObject = nameProperty.title[0] as RichTextText;
-  const title = titleObject.text.content;
-  // Parent properties
-  const datbaseParent = page.parent;
-  if (datbaseParent.type === "database_id") {
-    return {
-      name: title,
-      id: page.id,
-      status: (page.properties.Status as SelectPropertyValue).select.name!,
-      work: datbaseParent.database_id === WROJECTS_DATABASE_ID,
-      personal: datbaseParent.database_id === PROJECTS_DATABASE_ID,
-    };
-  } else
-    throw Error(
-      `massageDatabase should only be called from pages with database parents.
-        You called it with a ${datbaseParent.type} parent`
-    );
-}
-
-async function getDatabaseFromId(id: string): Promise<Page[]> {
-  const databaseResponse = await notionClient.databases.query({
-    database_id: id,
-  });
-  return databaseResponse.results;
-}
-
-function keyByName<T extends { name: string }[]>(database: T) {
-  return keyBy(database, (page) => page.name);
 }
 
 export const getAllNotionProjectsKeyed = async () => {
