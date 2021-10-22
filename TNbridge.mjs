@@ -143,10 +143,12 @@ for (let project in masterObject) {
       },
     });
 
+    const nativeURL = createNotionPageResponse.url.replace("https://www.notion.so/", "notion://native/")
+
     const _ = await got
       .post("https://api.todoist.com/rest/v1/tasks", {
         json: {
-          content: `* [Link to Notion project](${createNotionPageResponse.url})`,
+          content: `* [Link to Notion project](${nativeURL})`,
           project_id: Number(todoist.id),
         },
         headers: {
