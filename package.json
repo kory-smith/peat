@@ -1,8 +1,8 @@
 {
-  "name": "TNbridge",
+  "name": "peat",
   "version": "1.0.1",
   "main": "index.js",
-  "repository": "https://github.com/kory-smith/TNbridge.git",
+  "repository": "https://github.com/kory-smith/peat.git",
   "author": "Kory Smith <kory.smith@kroger.com>",
   "scripts": {
     "todoist": "node -r dotenv/config todoist.mjs",
