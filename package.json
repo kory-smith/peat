@@ -7,8 +7,8 @@
   "scripts": {
     "todoist": "node -r dotenv/config todoist.mjs",
     "notion": "node -r dotenv/config notion.mjs",
-    "preTNbridge": "tsc",
-    "TNbridge": "node -r dotenv/config dist/TNBridge.js"
+    "presync": "tsc",
+    "sync": "node -r dotenv/config dist/index.js"
   },
   "license": "MIT",
   "dependencies": {

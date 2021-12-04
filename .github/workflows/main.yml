@@ -19,5 +19,5 @@ jobs:
           TODOIST_TOKEN: ${{secrets.TODOIST_TOKEN}}
           NOTION_TOKEN: ${{secrets.NOTION_TOKEN}}
         run: |
-          yarn
-          yarn index
+          npm ci
+          npm run sync
