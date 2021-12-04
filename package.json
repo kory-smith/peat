@@ -12,13 +12,13 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@doist/todoist-api-typescript": "^1.5.0",
     "@notionhq/client": "^0.2.3",
     "got": "^11.8.2",
-    "lodash": "^4.17.21",
-    "@kory-smith/todoist-api-ts": "1.0.5"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "dotenv": "^9.0.2",
-    "@types/lodash": "^4.14.172"
+    "@types/lodash": "^4.14.172",
+    "dotenv": "^9.0.2"
   }
 }
