@@ -5,10 +5,10 @@
   "repository": "https://github.com/kory-smith/peat.git",
   "author": "Kory Smith <kory.smith@kroger.com>",
   "scripts": {
-    "todoist": "node -r dotenv/config todoist.mjs",
-    "notion": "node -r dotenv/config notion.mjs",
+    "todoist": "node -r todoist.mjs",
+    "notion": "node -r notion.mjs",
     "presync": "tsc",
-    "sync": "node -r dotenv/config dist/index.js"
+    "sync": "node -r dist/index.js"
   },
   "license": "MIT",
   "dependencies": {
@@ -18,7 +18,6 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.172",
-    "dotenv": "^9.0.2"
+    "@types/lodash": "^4.14.172"
   }
 }
