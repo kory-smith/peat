@@ -1,13 +1,13 @@
-import TodoistApiREST, { TodoistProject } from "@kory-smith/todoist-api-ts";
+import { TodoistApi, Project } from "@doist/todoist-api-typescript";
 import { keyBy } from "lodash";
 
-const todoist = new TodoistApiREST(process.env.TODOIST_TOKEN!);
+const todoist = new TodoistApi(process.env.TODOIST_TOKEN!);
 
 async function getAllProjects() {
-  return await todoist.getAllProjects();
+  return await todoist.getProjects();
 }
 
-function getProjectIdFromName(projectName: string, projects: TodoistProject[]) {
+function getProjectIdFromName(projectName: string, projects: Project[]) {
   const project = projects.find((project) => project.name === projectName);
   return project?.id;
 }
@@ -20,8 +20,8 @@ export const getAllTodoistProjectsKeyed = async () => {
   const projectsWithHelperData = projects.map((project) => {
     return {
       ...project,
-      work: project.parent_id === WORK_PROJECT_ID,
-      personal: project.parent_id === PERSONAL_PROJECT_ID,
+      work: project.parentId === WORK_PROJECT_ID,
+      personal: project.parentId === PERSONAL_PROJECT_ID,
     };
   });
 
