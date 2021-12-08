@@ -51,7 +51,7 @@ function massagePage(page: Page): MassagedNotionDatabase {
     );
 }
 
-function keyByName<T extends { name: string }[]>(database: T) {
+function keyByName<ArrayOfNameObjects extends { name: string }[]>(database: ArrayOfNameObjects) {
   return keyBy(database, (page) => page.name);
 }
 
