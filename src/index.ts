@@ -7,28 +7,7 @@ import {
   PROJECTS_DATABASE_ID,
 } from "./notion";
 import got from "got";
-
-
-type NotionProject = {
-  name: string;
-  id: string;
-  status?: string;
-  work?: Boolean;
-  personal?: Boolean;
-};
-
-interface MasterObject {
-  [projectTitle: string]: {
-    notion: NotionProject;
-    todoist: {
-      name: string;
-      id?: string;
-      work: boolean;
-      personal: boolean;
-      status: "Completed" | "In-progress";
-    };
-  };
-}
+import { getProjectTitlesFromProjects } from "./utils";
 
 const doWork = async () => {
   const projectsToExclude = [
@@ -42,72 +21,10 @@ const doWork = async () => {
 
   const allTodoistProjectsKeyed = await getAllTodoistProjectsKeyed();
 
-  projectsToExclude.forEach(
-    (excludedProjectName) => delete allTodoistProjectsKeyed[excludedProjectName]
-  );
-
   const allNotionProjectsKeyed = await getAllNotionProjectsKeyed();
 
-  const allProjectTitles = new Set<string>();
+  const allProjectTitles = getProjectTitlesFromProjects(allTodoistProjectsKeyed, allNotionProjectsKeyed, projectsToExclude)
 
-  Object.keys(allNotionProjectsKeyed).forEach((projectTitle) =>
-    allProjectTitles.add(projectTitle)
-  );
-  Object.keys(allTodoistProjectsKeyed).forEach((projectTitle) =>
-    allProjectTitles.add(projectTitle)
-  );
-
-  const masterObject: MasterObject = {};
-
-  for (let projectTitle of allProjectTitles) {
-    const todoistProject = allTodoistProjectsKeyed[projectTitle];
-    const notionProject = allNotionProjectsKeyed[projectTitle];
-    // In this case, we simply change the notion project's status to "Complete"
-    if (!todoistProject && notionProject) {
-      masterObject[projectTitle] = {
-        notion: {
-          ...(allNotionProjectsKeyed[projectTitle] as NotionProject),
-        },
-        todoist: {
-          name: projectTitle,
-          work: false,
-          personal: false,
-          status: "Completed",
-        },
-      };
-      // In this case, we need more data.
-    } else if (todoistProject && !notionProject) {
-      masterObject[projectTitle] = {
-        notion: {
-          name: projectTitle,
-          id: "foo",
-        },
-        todoist: {
-          name: projectTitle,
-          id: todoistProject.id.toString(),
-          status: "In-progress",
-          work: todoistProject.work,
-          personal: todoistProject.personal,
-        },
-      };
-    }
-    // they're both defined
-    else {
-      const currentTodoist = allTodoistProjectsKeyed[projectTitle];
-      masterObject[projectTitle] = {
-        notion: {
-          ...(allNotionProjectsKeyed[projectTitle] as NotionProject),
-        },
-        todoist: {
-          name: currentTodoist.name,
-          id: currentTodoist.id?.toString(),
-          work: currentTodoist.work,
-          personal: currentTodoist.personal,
-          status: "In-progress",
-        },
-      };
-    }
-  }
   // This does the updating
   for (let project in masterObject) {
     const { notion, todoist } = masterObject[project];
