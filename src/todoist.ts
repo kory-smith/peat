@@ -12,9 +12,14 @@ function getProjectIdFromName(projectName: string, projects: Project[]) {
   return project?.id;
 }
 
-export type enhancedTodoistProject = Project & { work: Boolean; personal: Boolean };
+export type enhancedTodoistProject = Project & {
+  work: Boolean;
+  personal: Boolean;
+};
 
-export const getAllTodoistProjectsKeyed = async (): Promise<Dictionary<enhancedTodoistProject>> => {
+export const getAllTodoistProjectsKeyed = async (): Promise<
+  Dictionary<enhancedTodoistProject>
+> => {
   const projects = await getAllProjects();
   const WORK_PROJECT_ID = getProjectIdFromName("Work", projects);
   const PERSONAL_PROJECT_ID = getProjectIdFromName("Personal", projects);

@@ -85,10 +85,10 @@ export async function createNotionChildPage(
 export const getAllNotionProjectsKeyed = async () => {
   const wrojects = await getDatabaseFromId(WROJECTS_DATABASE_ID);
   const massagedWrojects = wrojects.map((wroject) => massagePage(wroject));
-  const keyedWrojects = keyBy(massagedWrojects, page => page.name);
+  const keyedWrojects = keyBy(massagedWrojects, (page) => page.name);
 
   const projects = await getDatabaseFromId(PROJECTS_DATABASE_ID);
   const massagedProjects = projects.map((project) => massagePage(project));
-  const keyedProjects = keyBy(massagedProjects, page => page.name);
+  const keyedProjects = keyBy(massagedProjects, (page) => page.name);
   return Object.assign({}, keyedWrojects, keyedProjects);
 };

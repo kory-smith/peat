@@ -1,6 +1,6 @@
 import { Dictionary } from "lodash";
 import { getAllNotionProjectsKeyed, MassagedNotionDatabase } from "./notion";
-import {enhancedTodoistProject, getAllTodoistProjectsKeyed } from "./todoist";
+import { enhancedTodoistProject, getAllTodoistProjectsKeyed } from "./todoist";
 import assert from "assert";
 
 export const getProjectTitlesFromProjects = (
@@ -33,12 +33,12 @@ enum directives {
 }
 
 export const generateDirectives = (
-	projectTitles: string[],
-	keyedTodoistProjects: Dictionary<enhancedTodoistProject>,
-	keyedNotionProjects: Dictionary<MassagedNotionDatabase>
+  projectTitles: string[],
+  keyedTodoistProjects: Dictionary<enhancedTodoistProject>,
+  keyedNotionProjects: Dictionary<MassagedNotionDatabase>
 ) => {
   const executionList: {
-    [project: string]: directives[]
+    [project: string]: directives[];
   } = {};
 
   for (let projectTitle of projectTitles) {
@@ -72,5 +72,5 @@ export const generateDirectives = (
       executionList[projectTitle] = [directives.markInProgressInNotion];
     }
   }
-	return executionList
+  return executionList;
 };
