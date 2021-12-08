@@ -32,14 +32,16 @@ enum directives {
   markInProgressInNotion,
 }
 
+type ProjectsWithDirectives = {
+	[ project: string ]: directives[]
+}
+
 export const generateDirectives = (
   projectTitles: string[],
   keyedTodoistProjects: Dictionary<enhancedTodoistProject>,
   keyedNotionProjects: Dictionary<MassagedNotionDatabase>
 ) => {
-  const executionList: {
-    [project: string]: directives[];
-  } = {};
+  const executionList: ProjectsWithDirectives = {};
 
   for (let projectTitle of projectTitles) {
     const todoistProjectExists = projectTitle in keyedTodoistProjects;
