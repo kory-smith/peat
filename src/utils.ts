@@ -32,35 +32,30 @@ enum directives {
   markInProgressInNotion,
 }
 
-export const addDirectives = async (...projects) => {
-  const allTodoistProjectsKeyed = await getAllTodoistProjectsKeyed();
-
-  const allNotionProjectsKeyed = await getAllNotionProjectsKeyed();
-
-  const allProjectTitles = getProjectTitlesFromProjects(
-    allTodoistProjectsKeyed,
-    allNotionProjectsKeyed
-  );
-
+export const generateDirectives = (
+	projectTitles: string[],
+	keyedTodoistProjects: Dictionary<enhancedTodoistProject>,
+	keyedNotionProjects: Dictionary<MassagedNotionDatabase>
+) => {
   const executionList: {
-    [project: string]: number[];
+    [project: string]: directives[]
   } = {};
 
-  for (let projectTitle of allProjectTitles) {
-    const todoistProjectExists = projectTitle in allTodoistProjectsKeyed;
-    const notionProjectExists = projectTitle in allNotionProjectsKeyed;
+  for (let projectTitle of projectTitles) {
+    const todoistProjectExists = projectTitle in keyedTodoistProjects;
+    const notionProjectExists = projectTitle in keyedNotionProjects;
     let notionProjectIsComplete;
     let notionProjectIsInProgress;
     if (notionProjectExists) {
       assert.equal(
-        allNotionProjectsKeyed[projectTitle].status,
+        keyedNotionProjects[projectTitle].status,
         "In-progress" || "Completed",
         "Test message"
       );
       notionProjectIsComplete =
-        allNotionProjectsKeyed[projectTitle].status === "Completed";
+        keyedNotionProjects[projectTitle].status === "Completed";
       notionProjectIsInProgress =
-        allNotionProjectsKeyed[projectTitle].status === "In-progress";
+        keyedNotionProjects[projectTitle].status === "In-progress";
     }
 
     if (!todoistProjectExists && !notionProjectExists) continue;
@@ -77,4 +72,5 @@ export const addDirectives = async (...projects) => {
       executionList[projectTitle] = [directives.markInProgressInNotion];
     }
   }
+	return executionList
 };

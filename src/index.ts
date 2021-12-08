@@ -7,7 +7,7 @@ import {
   PROJECTS_DATABASE_ID,
 } from "./notion";
 import got from "got";
-import { getProjectTitlesFromProjects } from "./utils";
+import { generateDirectives, getProjectTitlesFromProjects } from "./utils";
 
 const doWork = async () => {
   const projectsToExclude = [
