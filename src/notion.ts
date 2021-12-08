@@ -14,7 +14,7 @@ export const notionClient = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
-type MassagedNotionDatabase = {
+export type MassagedNotionDatabase = {
   name: string;
   id: string;
   status: string;
