@@ -1,5 +1,5 @@
 import { TodoistApi, Project } from "@doist/todoist-api-typescript";
-import { keyBy } from "lodash";
+import { Dictionary, keyBy } from "lodash";
 
 const todoist = new TodoistApi(process.env.TODOIST_TOKEN!);
 
@@ -12,7 +12,9 @@ function getProjectIdFromName(projectName: string, projects: Project[]) {
   return project?.id;
 }
 
-export const getAllTodoistProjectsKeyed = async () => {
+export type enhancedTodoistProject = Project & { work: Boolean; personal: Boolean };
+
+export const getAllTodoistProjectsKeyed = async (): Promise<Dictionary<enhancedTodoistProject>> => {
   const projects = await getAllProjects();
   const WORK_PROJECT_ID = getProjectIdFromName("Work", projects);
   const PERSONAL_PROJECT_ID = getProjectIdFromName("Personal", projects);
