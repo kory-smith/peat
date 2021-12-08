@@ -33,8 +33,11 @@ enum directives {
 }
 
 type ProjectsWithDirectives = {
-	[ project: string ]: directives[]
-}
+  [project: string]: {
+    directives: directives[];
+    notionId?: string;
+  };
+};
 
 export const generateDirectives = (
   projectTitles: string[],
@@ -65,13 +68,19 @@ export const generateDirectives = (
     if (todoistProjectExists && notionProjectIsInProgress) continue;
 
     if (todoistProjectExists && !notionProjectExists) {
-      executionList[projectTitle] = [directives.createInNotion];
+      executionList[projectTitle] = { directives: [directives.createInNotion] };
     }
     if (!todoistProjectExists && notionProjectIsInProgress) {
-      executionList[projectTitle] = [directives.markCompleteInNotion];
+      executionList[projectTitle] = {
+        directives: [directives.markCompleteInNotion],
+				notionId: keyedNotionProjects[projectTitle].id
+      };
     }
     if (todoistProjectExists && notionProjectIsComplete) {
-      executionList[projectTitle] = [directives.markInProgressInNotion];
+      executionList[projectTitle] = {
+        directives: [directives.markInProgressInNotion],
+				notionId: keyedNotionProjects[projectTitle].id
+      };
     }
   }
   return executionList;
