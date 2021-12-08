@@ -25,6 +25,7 @@ export const getAllTodoistProjectsKeyed = async () => {
     };
   });
 
+  // TODO: RENAME ME
   const onlyRelevantProjects = projectsWithHelperData.filter(
     (project) => project.work || project.personal
   );
