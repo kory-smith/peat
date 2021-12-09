@@ -7,9 +7,11 @@ import {
   PROJECTS_DATABASE_ID,
   WROJECTS_DATABASE_ID,
 } from "./notion";
-import { enhancedTodoistProject, getAllTodoistProjectsKeyed } from "./todoist";
+import {
+  addURLToTodoistProjectAsTask,
+  enhancedTodoistProject,
+} from "./todoist";
 import assert from "assert";
-import got from "got"
 
 export const getProjectTitlesFromProjects = (
   todoistProjects: Dictionary<enhancedTodoistProject>,
@@ -146,15 +148,3 @@ export const executeDirectives = async (
     });
   }
 };
-
-async function addURLToTodoistProjectAsTask(url: string, projectId: number) {
-  return await got.post("https://api.todoist.com/rest/v1/tasks", {
-    json: {
-      content: `* [Link to Notion project](${url})`,
-      project_id: Number(projectId),
-    },
-    headers: {
-      Authorization: `Bearer ${process.env.TODOIST_TOKEN}`,
-    },
-  });
-}

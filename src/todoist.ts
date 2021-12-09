@@ -1,5 +1,6 @@
 import { TodoistApi, Project } from "@doist/todoist-api-typescript";
 import { Dictionary, keyBy } from "lodash";
+import got from "got"
 
 const todoist = new TodoistApi(process.env.TODOIST_TOKEN!);
 
@@ -10,6 +11,18 @@ async function getAllProjects() {
 function getProjectIdFromName(projectName: string, projects: Project[]) {
   const project = projects.find((project) => project.name === projectName);
   return project?.id;
+}
+
+export async function addURLToTodoistProjectAsTask(url: string, projectId: number) {
+  return await got.post("https://api.todoist.com/rest/v1/tasks", {
+    json: {
+      content: `* [Link to Notion project](${url})`,
+      project_id: Number(projectId),
+    },
+    headers: {
+      Authorization: `Bearer ${process.env.TODOIST_TOKEN}`,
+    },
+  });
 }
 
 export type enhancedTodoistProject = Project & {
