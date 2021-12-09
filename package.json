@@ -1,20 +1,23 @@
 {
-  "name": "TNbridge",
-  "version": "1.0.0",
+  "name": "peat",
+  "version": "1.0.1",
   "main": "index.js",
-  "repository": "https://github.com/kory-smith/TNbridge.git",
+  "repository": "https://github.com/kory-smith/peat.git",
   "author": "Kory Smith <kory.smith@kroger.com>",
   "scripts": {
-    "todoist": "node -r dotenv/config todoist.mjs",
-    "notion": "node -r dotenv/config notion.mjs",
-    "TNbridge": "node -r dotenv/config TNbridge.mjs"
+    "todoist": "node todoist.mjs",
+    "notion": "node notion.mjs",
+    "presync": "tsc",
+    "sync": "node dist/index.js"
   },
   "license": "MIT",
   "dependencies": {
+    "@doist/todoist-api-typescript": "^1.5.0",
     "@notionhq/client": "^0.2.3",
-    "dotenv": "^9.0.2",
     "got": "^11.8.2",
-    "hpagent": "^0.1.1",
     "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.172"
   }
 }
