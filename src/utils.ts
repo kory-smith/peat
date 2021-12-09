@@ -62,10 +62,10 @@ export const generateDirectives = (
     let notionProjectIsComplete;
     let notionProjectIsInProgress;
     if (notionProjectExists) {
-      assert.equal(
-        keyedNotionProjects[projectTitle].status,
-        "In-progress" || "Completed",
-        "Test message"
+      assert(
+        keyedNotionProjects[projectTitle].status === "In-progress" ||
+          keyedNotionProjects[projectTitle].status === "Completed",
+        "Notion project status should either be 'Completed' or 'In-progress'"
       );
       notionProjectIsComplete =
         keyedNotionProjects[projectTitle].status === "Completed";
