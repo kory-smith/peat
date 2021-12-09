@@ -2,8 +2,8 @@ name: Sync
 
 on:
   push:
-  branches:
-    - master
+    branches:
+      - master
   repository_dispatch:
   schedule:
     - cron: "0 * * * *"
