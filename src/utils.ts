@@ -1,7 +1,15 @@
 import { Dictionary } from "lodash";
-import { getAllNotionProjectsKeyed, MassagedNotionDatabase } from "./notion";
+import {
+  createNotionChildPage,
+  getAllNotionProjectsKeyed,
+  MassagedNotionDatabase,
+  notionClient,
+  PROJECTS_DATABASE_ID,
+  WROJECTS_DATABASE_ID,
+} from "./notion";
 import { enhancedTodoistProject, getAllTodoistProjectsKeyed } from "./todoist";
 import assert from "assert";
+import got from "got"
 
 export const getProjectTitlesFromProjects = (
   todoistProjects: Dictionary<enhancedTodoistProject>,
@@ -27,7 +35,7 @@ export const getProjectTitlesFromProjects = (
 };
 
 enum directives {
-  createInNotion,
+  createInNotionAndLinkInTodoist,
   markCompleteInNotion,
   markInProgressInNotion,
 }
@@ -36,6 +44,8 @@ type ProjectsWithDirectives = {
   [project: string]: {
     directives: directives[];
     notionId?: string;
+    todoistId?: number;
+    work?: Boolean
   };
 };
 
@@ -68,7 +78,11 @@ export const generateDirectives = (
     if (todoistProjectExists && notionProjectIsInProgress) continue;
 
     if (todoistProjectExists && !notionProjectExists) {
-      executionList[projectTitle] = { directives: [directives.createInNotion] };
+      executionList[projectTitle] = { 
+        directives: [directives.createInNotionAndLinkInTodoist], 
+        todoistId: keyedTodoistProjects[projectTitle].id,
+        work: keyedTodoistProjects[projectTitle].work,
+      };
     }
     if (!todoistProjectExists && notionProjectIsInProgress) {
       executionList[projectTitle] = {
@@ -84,4 +98,69 @@ export const generateDirectives = (
     }
   }
   return executionList;
+};
+
+export const executeDirectives = async (
+  projectsWithDirectives: ProjectsWithDirectives
+) => {
+  for (const projectName in projectsWithDirectives) {
+    const project = projectsWithDirectives[projectName];
+    project.directives.forEach(async (directive) => {
+      switch (directive) {
+        case directives.createInNotionAndLinkInTodoist:
+          if (project.work) {
+            const databaseIdToUse = project.work
+              ? WROJECTS_DATABASE_ID
+              : PROJECTS_DATABASE_ID;
+            const createNotionPageResponse: any = await createNotionChildPage(
+              databaseIdToUse,
+              projectName,
+              "In-progress"
+            );
+            const nativeURL = createNotionPageResponse.url.replace(
+              "https://www.notion.so/",
+              "notion://native/"
+            );
+            const _ = await got.post("https://api.todoist.com/rest/v1/tasks", {
+              json: {
+                content: `* [Link to Notion project](${nativeURL})`,
+                project_id: Number(project.todoistId),
+              },
+              headers: {
+                Authorization: `Bearer ${process.env.TODOIST_TOKEN}`,
+              },
+            });
+          }
+          break;
+        case directives.markInProgressInNotion:
+          if (project.notionId) {
+            applyStatusToNotionPage(project.notionId, "In-progress");
+            break;
+          }
+        case directives.markCompleteInNotion:
+          if (project.notionId) {
+            applyStatusToNotionPage(project.notionId, "Completed");
+            break;
+          }
+          break;
+        default:
+          throw "Expected directive. Got nothing";
+      }
+    });
+  }
+};
+
+const applyStatusToNotionPage = async (pageId: string, status: string) => {
+  return await notionClient.pages.update({
+    archived: false,
+    page_id: pageId,
+    properties: {
+      Status: {
+        type: "select",
+        select: {
+          name: status,
+        },
+      },
+    },
+  });
 };
