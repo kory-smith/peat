@@ -117,6 +117,29 @@ export const executeDirectives = async (
               projectName,
               "In-progress"
             );
+
+            notionClient.databases.create({
+              parent: {
+                page_id: createNotionPageResponse.id,
+              },
+              title: [
+                {
+                  type: "text",
+                  text: {
+                    content: "Resources",
+                  },
+                },
+              ],
+              properties: {
+                Name: {
+                  title: {},
+                },
+                Description: {
+                  rich_text: {},
+                },
+              },
+            });
+
             const nativeURL = createNotionPageResponse.url.replace(
               "https://www.notion.so/",
               "notion://native/"
