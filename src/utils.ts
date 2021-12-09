@@ -1,9 +1,9 @@
 import { Dictionary } from "lodash";
 import {
+  applyStatusToNotionPage,
   createNotionChildPage,
-  getAllNotionProjectsKeyed,
+  createResourceDatabase,
   MassagedNotionDatabase,
-  notionClient,
   PROJECTS_DATABASE_ID,
   WROJECTS_DATABASE_ID,
 } from "./notion";
@@ -146,45 +146,6 @@ export const executeDirectives = async (
     });
   }
 };
-
-const applyStatusToNotionPage = async (pageId: string, status: string) => {
-  return await notionClient.pages.update({
-    archived: false,
-    page_id: pageId,
-    properties: {
-      Status: {
-        type: "select",
-        select: {
-          name: status,
-        },
-      },
-    },
-  });
-};
-
-function createResourceDatabase(notionId: string) {
-  notionClient.databases.create({
-    parent: {
-      page_id: notionId
-    },
-    title: [
-      {
-        type: "text",
-        text: {
-          content: "Resources",
-        },
-      },
-    ],
-    properties: {
-      Name: {
-        title: {},
-      },
-      Description: {
-        rich_text: {},
-      },
-    },
-  });
-}
 
 async function addURLToTodoistProjectAsTask(url: string, projectId: number) {
   return await got.post("https://api.todoist.com/rest/v1/tasks", {
