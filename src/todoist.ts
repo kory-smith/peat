@@ -1,6 +1,6 @@
 import { TodoistApi, Project } from "@doist/todoist-api-typescript";
 import { Dictionary, keyBy } from "lodash";
-import got from "got"
+import got from "got";
 
 const todoist = new TodoistApi(process.env.TODOIST_TOKEN!);
 
@@ -13,7 +13,10 @@ function getProjectIdFromName(projectName: string, projects: Project[]) {
   return project?.id;
 }
 
-export async function addURLToTodoistProjectAsTask(url: string, projectId: number) {
+export async function addURLToTodoistProjectAsTask(
+  url: string,
+  projectId: number
+) {
   return await got.post("https://api.todoist.com/rest/v1/tasks", {
     json: {
       content: `* [Link to Notion project](${url})`,

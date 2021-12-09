@@ -82,7 +82,10 @@ export async function createNotionChildPage(
   });
 }
 
-export const applyStatusToNotionPage = async (pageId: string, status: string) => {
+export const applyStatusToNotionPage = async (
+  pageId: string,
+  status: string
+) => {
   return await notionClient.pages.update({
     archived: false,
     page_id: pageId,
@@ -100,7 +103,7 @@ export const applyStatusToNotionPage = async (pageId: string, status: string) =>
 export function createResourceDatabase(notionId: string) {
   notionClient.databases.create({
     parent: {
-      page_id: notionId
+      page_id: notionId,
     },
     title: [
       {

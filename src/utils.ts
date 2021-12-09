@@ -47,7 +47,7 @@ type ProjectsWithDirectives = {
     directives: directives[];
     notionId?: string;
     todoistId?: number;
-    work?: Boolean
+    work?: Boolean;
   };
 };
 
@@ -80,8 +80,8 @@ export const generateDirectives = (
     if (todoistProjectExists && notionProjectIsInProgress) continue;
 
     if (todoistProjectExists && !notionProjectExists) {
-      executionList[projectTitle] = { 
-        directives: [directives.createInNotionAndLinkInTodoist], 
+      executionList[projectTitle] = {
+        directives: [directives.createInNotionAndLinkInTodoist],
         todoistId: keyedTodoistProjects[projectTitle].id,
         work: keyedTodoistProjects[projectTitle].work,
       };
@@ -89,13 +89,13 @@ export const generateDirectives = (
     if (!todoistProjectExists && notionProjectIsInProgress) {
       executionList[projectTitle] = {
         directives: [directives.markCompleteInNotion],
-				notionId: keyedNotionProjects[projectTitle].id
+        notionId: keyedNotionProjects[projectTitle].id,
       };
     }
     if (todoistProjectExists && notionProjectIsComplete) {
       executionList[projectTitle] = {
         directives: [directives.markInProgressInNotion],
-				notionId: keyedNotionProjects[projectTitle].id
+        notionId: keyedNotionProjects[projectTitle].id,
       };
     }
   }
