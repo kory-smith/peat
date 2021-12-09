@@ -1,13 +1,10 @@
 import { getAllTodoistProjectsKeyed } from "./todoist";
+import { getAllNotionProjectsKeyed } from "./notion";
 import {
-  notionClient,
-  createNotionChildPage,
-  getAllNotionProjectsKeyed,
-  WROJECTS_DATABASE_ID,
-  PROJECTS_DATABASE_ID,
-} from "./notion";
-import got from "got";
-import { executeDirectives, generateDirectives, getProjectTitlesFromProjects } from "./utils";
+  executeDirectives,
+  generateDirectives,
+  getProjectTitlesFromProjects,
+} from "./utils";
 
 const doWork = async () => {
   const projectsToExclude = [
@@ -35,8 +32,7 @@ const doWork = async () => {
     allNotionProjectsKeyed
   );
 
- await executeDirectives(projectsWithDirectives)
-
+  await executeDirectives(projectsWithDirectives);
 };
 
 doWork();
