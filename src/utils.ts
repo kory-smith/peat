@@ -108,53 +108,27 @@ export const executeDirectives = async (
     project.directives.forEach(async (directive) => {
       switch (directive) {
         case directives.createInNotionAndLinkInTodoist:
-          if (project.work) {
+          if (project.work && project.todoistId) {
             const databaseIdToUse = project.work
               ? WROJECTS_DATABASE_ID
               : PROJECTS_DATABASE_ID;
+
             const createNotionPageResponse: any = await createNotionChildPage(
               databaseIdToUse,
               projectName,
               "In-progress"
             );
-
-            notionClient.databases.create({
-              parent: {
-                page_id: createNotionPageResponse.id,
-              },
-              title: [
-                {
-                  type: "text",
-                  text: {
-                    content: "Resources",
-                  },
-                },
-              ],
-              properties: {
-                Name: {
-                  title: {},
-                },
-                Description: {
-                  rich_text: {},
-                },
-              },
-            });
-
+            createResourceDatabase(createNotionPageResponse.id);
             const nativeURL = createNotionPageResponse.url.replace(
               "https://www.notion.so/",
               "notion://native/"
             );
-            const _ = await got.post("https://api.todoist.com/rest/v1/tasks", {
-              json: {
-                content: `* [Link to Notion project](${nativeURL})`,
-                project_id: Number(project.todoistId),
-              },
-              headers: {
-                Authorization: `Bearer ${process.env.TODOIST_TOKEN}`,
-              },
-            });
+            const _ = await addURLToTodoistProjectAsTask(
+              nativeURL,
+              project.todoistId
+            );
+            break;
           }
-          break;
         case directives.markInProgressInNotion:
           if (project.notionId) {
             applyStatusToNotionPage(project.notionId, "In-progress");
@@ -187,3 +161,39 @@ const applyStatusToNotionPage = async (pageId: string, status: string) => {
     },
   });
 };
+
+function createResourceDatabase(notionId: string) {
+  notionClient.databases.create({
+    parent: {
+      page_id: notionId
+    },
+    title: [
+      {
+        type: "text",
+        text: {
+          content: "Resources",
+        },
+      },
+    ],
+    properties: {
+      Name: {
+        title: {},
+      },
+      Description: {
+        rich_text: {},
+      },
+    },
+  });
+}
+
+async function addURLToTodoistProjectAsTask(url: string, projectId: number) {
+  return await got.post("https://api.todoist.com/rest/v1/tasks", {
+    json: {
+      content: `* [Link to Notion project](${url})`,
+      project_id: Number(projectId),
+    },
+    headers: {
+      Authorization: `Bearer ${process.env.TODOIST_TOKEN}`,
+    },
+  });
+}
