@@ -8,9 +8,9 @@ import {
 
 const doWork = async () => {
   const projectsToExclude = [
-    "One-offs",
+    "Wone-offs",
     "Wickler",
-    "Someday/Maybe",
+    "Womeday/Maybe",
     "🎟 Pone-offs",
     "Pickler",
     "🌱 Pomeday/Maybe",
