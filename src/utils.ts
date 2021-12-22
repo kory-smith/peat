@@ -110,7 +110,7 @@ export const executeDirectives = async (
     project.directives.forEach(async (directive) => {
       switch (directive) {
         case directives.createInNotionAndLinkInTodoist:
-          if (project.work && project.todoistId) {
+          if (project.todoistId) {
             const databaseIdToUse = project.work
               ? WROJECTS_DATABASE_ID
               : PROJECTS_DATABASE_ID;
