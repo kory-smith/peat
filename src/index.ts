@@ -7,7 +7,7 @@ import {
   executeDirectives,
 } from "./utils";
 
-const doWork = async () => {
+(async () => {
   const projectsToExclude = [
     "Wone-offs",
     "Wickler",
@@ -31,6 +31,4 @@ const doWork = async () => {
   const projectsWithDirectives = generateDirectives(masterObj)
 
   await executeDirectives(projectsWithDirectives)
-};
-
-doWork();
+})()
