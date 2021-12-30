@@ -1,9 +1,10 @@
 import { getAllTodoistProjectsKeyed } from "./todoist";
 import { getAllNotionProjectsKeyed } from "./notion";
+import { getAllTogglProjectsKeyed } from "./toggl";
 import {
-  executeDirectives,
   generateDirectives,
-  getProjectTitlesFromProjects,
+  createMasterObject,
+  executeDirectives,
 } from "./utils";
 
 const doWork = async () => {
@@ -17,22 +18,19 @@ const doWork = async () => {
   ];
 
   const allTodoistProjectsKeyed = await getAllTodoistProjectsKeyed();
-
   const allNotionProjectsKeyed = await getAllNotionProjectsKeyed();
+  const allTogglProjectsKeyed = await getAllTogglProjectsKeyed();
 
-  const allProjectTitles = getProjectTitlesFromProjects(
+  const masterObj = createMasterObject(
+    projectsToExclude,
     allTodoistProjectsKeyed,
     allNotionProjectsKeyed,
-    projectsToExclude
+    allTogglProjectsKeyed
   );
 
-  const projectsWithDirectives = generateDirectives(
-    allProjectTitles,
-    allTodoistProjectsKeyed,
-    allNotionProjectsKeyed
-  );
+  const projectsWithDirectives = generateDirectives(masterObj)
 
-  await executeDirectives(projectsWithDirectives);
+  await executeDirectives(projectsWithDirectives)
 };
 
 doWork();
