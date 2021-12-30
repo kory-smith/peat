@@ -9,12 +9,13 @@ import {
 
 (async () => {
   const projectsToExclude = [
-    "Wone-offs",
+    "Pickler",
+    "Standby",
     "Wickler",
     "Womeday/Maybe",
-    "🎟 Pone-offs",
-    "Pickler",
+    "Wone-offs",
     "🌱 Pomeday/Maybe",
+    "🎟 Pone-offs",
   ];
 
   const allTodoistProjectsKeyed = await getAllTodoistProjectsKeyed();
