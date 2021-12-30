@@ -12,15 +12,73 @@ import {
   enhancedTodoistProject,
 } from "./todoist";
 import assert from "assert";
+import { Project } from "@doist/todoist-api-typescript";
+import { setTogglProjectActiveState, createTogglProject } from "./toggl";
+
+type ProjectCollection = {
+  [appName: string]:
+    | Dictionary<MassagedNotionDatabase>
+    | Dictionary<enhancedTodoistProject>
+    | any;
+};
+
+const foo = {
+  "Wone-offs": {
+    //commentCount
+    todoist: {},
+    //status
+    notion: {},
+    //wid
+    toggl: {},
+  },
+};
+
+export const createMasterObject = (
+  exclusions: string[],
+  ...allProjects: Array<
+    | Dictionary<MassagedNotionDatabase>
+    | Dictionary<enhancedTodoistProject>
+    | Dictionary<any>
+  >
+) => {
+  const masterObject: any = {};
+  for (const projectDictionary of allProjects) {
+    for (const key in projectDictionary) {
+      if (key in masterObject) continue;
+      masterObject[key] = { directives: [] };
+    }
+  }
+
+  for (const projectDictionary of allProjects) {
+    for (const key in projectDictionary) {
+      const currentProject = projectDictionary[key];
+      if ("commentCount" in currentProject) {
+        masterObject[key]["todoist"] = currentProject;
+      }
+      if ("status" in currentProject) {
+        masterObject[key]["notion"] = currentProject;
+      }
+      if ("wid" in currentProject) {
+        masterObject[key]["toggl"] = currentProject;
+      }
+    }
+  }
+  for (const exclusion of exclusions) {
+    delete masterObject[exclusion];
+  }
+  return masterObject;
+};
 
 export const getProjectTitlesFromProjects = (
   todoistProjects: Dictionary<enhancedTodoistProject>,
   notionProjects: Dictionary<MassagedNotionDatabase>,
+  togglProjects: Dictionary<any>,
   exclusions?: string[]
 ) => {
   const mergedProductTitles = [
     ...Object.keys(todoistProjects),
     ...Object.keys(notionProjects),
+    ...Object.keys(togglProjects),
   ];
 
   const uniqueProjectTitles = new Set<string>(mergedProductTitles);
@@ -37,9 +95,13 @@ export const getProjectTitlesFromProjects = (
 };
 
 enum directives {
+  doNothing,
   createInNotionAndLinkInTodoist,
   markCompleteInNotion,
   markInProgressInNotion,
+  createInToggl,
+  markActiveInToggl,
+  markInactiveInToggl,
 }
 
 type ProjectsWithDirectives = {
@@ -47,56 +109,74 @@ type ProjectsWithDirectives = {
     directives: directives[];
     notionId?: string;
     todoistId?: number;
+    togglId?: number;
     work?: Boolean;
   };
 };
 
-export const generateDirectives = (
-  projectTitles: string[],
-  keyedTodoistProjects: Dictionary<enhancedTodoistProject>,
-  keyedNotionProjects: Dictionary<MassagedNotionDatabase>
-) => {
-  const executionList: ProjectsWithDirectives = {};
+export const generateDirectives = (masterObj: any) => {
+  const executionList: any = [];
+  for (const projectTitle in masterObj) {
+    executionList[projectTitle] = { directives: [] };
+    const currentExecutionObj = executionList[projectTitle];
+    const currentProject = masterObj[projectTitle];
+    const todoistProjectExists = "todoist" in currentProject;
 
-  for (let projectTitle of projectTitles) {
-    const todoistProjectExists = projectTitle in keyedTodoistProjects;
-    const notionProjectExists = projectTitle in keyedNotionProjects;
+    const notionProjectExists = "notion" in currentProject;
     let notionProjectIsComplete;
     let notionProjectIsInProgress;
+
     if (notionProjectExists) {
       assert(
-        keyedNotionProjects[projectTitle].status === "In-progress" ||
-          keyedNotionProjects[projectTitle].status === "Completed",
+        currentProject.notion.status === "In-progress" ||
+          currentProject.notion.status === "Completed",
         "Notion project status should either be 'Completed' or 'In-progress'"
       );
-      notionProjectIsComplete =
-        keyedNotionProjects[projectTitle].status === "Completed";
+      notionProjectIsComplete = currentProject.notion.status === "Completed";
       notionProjectIsInProgress =
-        keyedNotionProjects[projectTitle].status === "In-progress";
+        currentProject.notion.status === "In-progress";
     }
-
-    if (!todoistProjectExists && !notionProjectExists) continue;
-    if (!todoistProjectExists && notionProjectIsComplete) continue;
-    if (todoistProjectExists && notionProjectIsInProgress) continue;
-
     if (todoistProjectExists && !notionProjectExists) {
-      executionList[projectTitle] = {
-        directives: [directives.createInNotionAndLinkInTodoist],
-        todoistId: keyedTodoistProjects[projectTitle].id,
-        work: keyedTodoistProjects[projectTitle].work,
-      };
+      currentExecutionObj.directives.push(
+        directives.createInNotionAndLinkInTodoist
+      );
+      currentExecutionObj.todoistId = currentProject.todoist.id;
+      currentExecutionObj.work = currentProject.todoist.work;
     }
     if (!todoistProjectExists && notionProjectIsInProgress) {
-      executionList[projectTitle] = {
-        directives: [directives.markCompleteInNotion],
-        notionId: keyedNotionProjects[projectTitle].id,
-      };
+      currentExecutionObj.directives.push(directives.markCompleteInNotion),
+        (currentExecutionObj.notionId = currentProject.notion.id);
     }
     if (todoistProjectExists && notionProjectIsComplete) {
-      executionList[projectTitle] = {
-        directives: [directives.markInProgressInNotion],
-        notionId: keyedNotionProjects[projectTitle].id,
-      };
+      currentExecutionObj.directives.push(directives.markInProgressInNotion);
+      currentExecutionObj.notionId = currentProject.notion.id;
+    }
+
+    const togglProjectExists = "toggl" in currentProject;
+    let togglProjectIsInProgress;
+    if (togglProjectExists) {
+      togglProjectIsInProgress = currentProject.toggl.active;
+    }
+
+    if (
+      !todoistProjectExists &&
+      togglProjectExists &&
+      togglProjectIsInProgress
+    ) {
+      currentExecutionObj.directives.push(directives.markInactiveInToggl);
+      currentExecutionObj.togglId = currentProject.toggl.id;
+    }
+    if (
+      todoistProjectExists &&
+      togglProjectExists &&
+      !togglProjectIsInProgress
+    ) {
+      currentExecutionObj.directives.push(directives.markActiveInToggl);
+      currentExecutionObj.togglId = currentProject.toggl.id;
+    }
+    if (todoistProjectExists && !togglProjectExists) {
+      currentExecutionObj.directives.push(directives.createInToggl);
+      currentExecutionObj.work = currentProject.todoist.work;
     }
   }
   return executionList;
@@ -109,6 +189,15 @@ export const executeDirectives = async (
     const project = projectsWithDirectives[projectName];
     project.directives.forEach(async (directive) => {
       switch (directive) {
+        case directives.createInToggl:
+          await createTogglProject(projectName, { work: project.work! });
+          break;
+        case directives.markActiveInToggl:
+          await setTogglProjectActiveState(project.togglId!, "active");
+          break;
+        case directives.markInactiveInToggl:
+          await setTogglProjectActiveState(project.togglId!, "inactive");
+          break;
         case directives.createInNotionAndLinkInTodoist:
           if (project.todoistId) {
             const databaseIdToUse = project.work
