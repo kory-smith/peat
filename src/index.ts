@@ -9,6 +9,7 @@ import {
 
 (async () => {
   const projectsToExclude = [
+    "Clerical",
     "Pickler",
     "Standby",
     "Wickler",
