@@ -20,9 +20,9 @@ export async function addURLToTodoistProjectAsTask(
   const headerNoteLabel = labels.find(label => label.name === "Header/Note")!
   return await todoist.addTask({
     content: `* [Link to Notion project](${url})`,
-    projectId: Number(projectId),
+    projectId: String(projectId),
     order: 0,
-    labelIds: [headerNoteLabel.id]
+    labels: [headerNoteLabel.id]
   });
 }
 

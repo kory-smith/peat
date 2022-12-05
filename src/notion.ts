@@ -1,10 +1,4 @@
 import { Client } from "@notionhq/client";
-import {
-  Page,
-  RichTextText,
-  SelectPropertyValue,
-  TitlePropertyValue,
-} from "@notionhq/client/build/src/api-types";
 import { keyBy } from "lodash";
 
 export const WROJECTS_DATABASE_ID = "a5994ff1-52d0-4827-a47d-253941e69e20";
@@ -22,17 +16,17 @@ export type MassagedNotionDatabase = {
   personal: Boolean;
 };
 
-async function getDatabaseFromId(id: string): Promise<Page[]> {
+async function getDatabaseFromId(id: string): Promise<any[]> {
   const databaseResponse = await notionClient.databases.query({
     database_id: id,
   });
   return databaseResponse.results;
 }
 
-function massagePage(page: Page): MassagedNotionDatabase {
+function massagePage(page: any): MassagedNotionDatabase {
   // Title properties
-  const nameProperty = page.properties.Name as TitlePropertyValue;
-  const titleObject = nameProperty.title[0] as RichTextText;
+  const nameProperty = page.properties.Name as any;
+  const titleObject = nameProperty.title[0] as any;
   const title = titleObject.text.content;
   // Parent properties
   const datbaseParent = page.parent;
@@ -40,7 +34,7 @@ function massagePage(page: Page): MassagedNotionDatabase {
     return {
       name: title,
       id: page.id,
-      status: (page.properties.Status as SelectPropertyValue).select.name!,
+      status: (page.properties.Status as any).select.name!,
       work: datbaseParent.database_id === WROJECTS_DATABASE_ID,
       personal: datbaseParent.database_id === PROJECTS_DATABASE_ID,
     };
