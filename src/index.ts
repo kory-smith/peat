@@ -1,6 +1,5 @@
 import { getAllTodoistProjectsKeyed } from "./todoist";
 import { getAllNotionProjectsKeyed } from "./notion";
-import { getAllTogglProjectsKeyed } from "./toggl";
 import {
   generateDirectives,
   createMasterObject,
@@ -21,13 +20,11 @@ import {
 
   const allTodoistProjectsKeyed = await getAllTodoistProjectsKeyed();
   const allNotionProjectsKeyed = await getAllNotionProjectsKeyed();
-  const allTogglProjectsKeyed = await getAllTogglProjectsKeyed();
 
   const masterObj = createMasterObject(
     projectsToExclude,
     allTodoistProjectsKeyed,
     allNotionProjectsKeyed,
-    allTogglProjectsKeyed
   );
 
   const projectsWithDirectives = generateDirectives(masterObj)

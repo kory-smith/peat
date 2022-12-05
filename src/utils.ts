@@ -13,7 +13,6 @@ import {
 } from "./todoist";
 import assert from "assert";
 import { Project } from "@doist/todoist-api-typescript";
-import { setTogglProjectActiveState, createTogglProject } from "./toggl";
 
 type ProjectCollection = {
   [appName: string]:
@@ -99,9 +98,6 @@ enum directives {
   createInNotionAndLinkInTodoist,
   markCompleteInNotion,
   markInProgressInNotion,
-  createInToggl,
-  markActiveInToggl,
-  markInactiveInToggl,
 }
 
 type ProjectsWithDirectives = {
@@ -163,19 +159,15 @@ export const generateDirectives = (masterObj: any) => {
       togglProjectExists &&
       togglProjectIsInProgress
     ) {
-      currentExecutionObj.directives.push(directives.markInactiveInToggl);
-      currentExecutionObj.togglId = currentProject.toggl.id;
     }
     if (
       todoistProjectExists &&
       togglProjectExists &&
       !togglProjectIsInProgress
     ) {
-      currentExecutionObj.directives.push(directives.markActiveInToggl);
       currentExecutionObj.togglId = currentProject.toggl.id;
     }
     if (todoistProjectExists && !togglProjectExists) {
-      currentExecutionObj.directives.push(directives.createInToggl);
       currentExecutionObj.work = currentProject.todoist.work;
     }
   }
@@ -189,15 +181,6 @@ export const executeDirectives = async (
     const project = projectsWithDirectives[projectName];
     project.directives.forEach(async (directive) => {
       switch (directive) {
-        case directives.createInToggl:
-          await createTogglProject(projectName, { work: project.work! });
-          break;
-        case directives.markActiveInToggl:
-          await setTogglProjectActiveState(project.togglId!, "active");
-          break;
-        case directives.markInactiveInToggl:
-          await setTogglProjectActiveState(project.togglId!, "inactive");
-          break;
         case directives.createInNotionAndLinkInTodoist:
           if (project.todoistId) {
             const databaseIdToUse = project.work
