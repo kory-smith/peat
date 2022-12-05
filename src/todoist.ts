@@ -22,7 +22,7 @@ export async function addURLToTodoistProjectAsTask(
     content: `* [Link to Notion project](${url})`,
     projectId: String(projectId),
     order: 0,
-    labels: [headerNoteLabel.id]
+    labels: [headerNoteLabel.name]
   });
 }
 
