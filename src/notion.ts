@@ -99,6 +99,7 @@ export function createResourceDatabase(notionId: string) {
     parent: {
       page_id: notionId,
     },
+    is_inline: true,
     title: [
       {
         type: "text",
