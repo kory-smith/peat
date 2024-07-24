@@ -16,7 +16,6 @@ jobs:
         env:
           TODOIST_TOKEN: ${{secrets.TODOIST_TOKEN}}
           NOTION_TOKEN: ${{secrets.NOTION_TOKEN}}
-          TOGGL_TOKEN: ${{secrets.TOGGL_TOKEN}}
         run: |
           npm ci
           npm run sync

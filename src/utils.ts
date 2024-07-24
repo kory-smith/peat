@@ -12,25 +12,6 @@ import {
   enhancedTodoistProject,
 } from "./todoist";
 import assert from "assert";
-import { Project } from "@doist/todoist-api-typescript";
-
-type ProjectCollection = {
-  [appName: string]:
-    | Dictionary<MassagedNotionDatabase>
-    | Dictionary<enhancedTodoistProject>
-    | any;
-};
-
-const foo = {
-  "Wone-offs": {
-    //commentCount
-    todoist: {},
-    //status
-    notion: {},
-    //wid
-    toggl: {},
-  },
-};
 
 export const createMasterObject = (
   exclusions: string[],
@@ -57,9 +38,6 @@ export const createMasterObject = (
       if ("status" in currentProject) {
         masterObject[key]["notion"] = currentProject;
       }
-      if ("wid" in currentProject) {
-        masterObject[key]["toggl"] = currentProject;
-      }
     }
   }
   for (const exclusion of exclusions) {
@@ -71,13 +49,11 @@ export const createMasterObject = (
 export const getProjectTitlesFromProjects = (
   todoistProjects: Dictionary<enhancedTodoistProject>,
   notionProjects: Dictionary<MassagedNotionDatabase>,
-  togglProjects: Dictionary<any>,
   exclusions?: string[]
 ) => {
   const mergedProductTitles = [
     ...Object.keys(todoistProjects),
     ...Object.keys(notionProjects),
-    ...Object.keys(togglProjects),
   ];
 
   const uniqueProjectTitles = new Set<string>(mergedProductTitles);
@@ -105,7 +81,6 @@ type ProjectsWithDirectives = {
     directives: directives[];
     notionId?: string;
     todoistId?: number;
-    togglId?: number;
     work?: Boolean;
   };
 };
@@ -146,29 +121,6 @@ export const generateDirectives = (masterObj: any) => {
     if (todoistProjectExists && notionProjectIsComplete) {
       currentExecutionObj.directives.push(directives.markInProgressInNotion);
       currentExecutionObj.notionId = currentProject.notion.id;
-    }
-
-    const togglProjectExists = "toggl" in currentProject;
-    let togglProjectIsInProgress;
-    if (togglProjectExists) {
-      togglProjectIsInProgress = currentProject.toggl.active;
-    }
-
-    if (
-      !todoistProjectExists &&
-      togglProjectExists &&
-      togglProjectIsInProgress
-    ) {
-    }
-    if (
-      todoistProjectExists &&
-      togglProjectExists &&
-      !togglProjectIsInProgress
-    ) {
-      currentExecutionObj.togglId = currentProject.toggl.id;
-    }
-    if (todoistProjectExists && !togglProjectExists) {
-      currentExecutionObj.work = currentProject.todoist.work;
     }
   }
   return executionList;
