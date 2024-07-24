@@ -12,10 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: oven-sh/setup-bun@v2
       - name: run index
         env:
           TODOIST_TOKEN: ${{secrets.TODOIST_TOKEN}}
           NOTION_TOKEN: ${{secrets.NOTION_TOKEN}}
         run: |
-          npm ci
-          npm run sync
+          bun install
+          bun src/index.ts
