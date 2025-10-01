@@ -6,6 +6,10 @@ on:
       - master
   repository_dispatch:
 
+concurrency:
+  group: sync-todoist-notion
+  cancel-in-progress: false
+
 jobs:
   index:
     name: Sync projects between Todoist and Notion
