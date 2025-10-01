@@ -3,6 +3,7 @@ import {
   applyStatusToNotionPage,
   createNotionChildPage,
   createResourceDatabase,
+  getAllNotionProjectsKeyed,
   MassagedNotionDatabase,
   PROJECTS_DATABASE_ID,
   WROJECTS_DATABASE_ID,
@@ -138,6 +139,13 @@ export const executeDirectives = async (
             const databaseIdToUse = project.work
               ? WROJECTS_DATABASE_ID
               : PROJECTS_DATABASE_ID;
+
+            // Double-check if project exists before creating (race condition protection)
+            const freshNotionProjects = await getAllNotionProjectsKeyed();
+            if (projectName in freshNotionProjects) {
+              console.log(`Project "${projectName}" already exists in Notion. Skipping creation.`);
+              break;
+            }
 
             const createNotionPageResponse: any = await createNotionChildPage(
               databaseIdToUse,
