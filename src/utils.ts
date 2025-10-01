@@ -131,7 +131,7 @@ export const executeDirectives = async (
 ) => {
   for (const projectName in projectsWithDirectives) {
     const project = projectsWithDirectives[projectName];
-    project.directives.forEach(async (directive) => {
+    for (const directive of project.directives) {
       switch (directive) {
         case directives.createInNotionAndLinkInTodoist:
           if (project.todoistId) {
@@ -157,18 +157,18 @@ export const executeDirectives = async (
           }
         case directives.markInProgressInNotion:
           if (project.notionId) {
-            applyStatusToNotionPage(project.notionId, "In-progress");
+            await applyStatusToNotionPage(project.notionId, "In-progress");
             break;
           }
         case directives.markCompleteInNotion:
           if (project.notionId) {
-            applyStatusToNotionPage(project.notionId, "Completed");
+            await applyStatusToNotionPage(project.notionId, "Completed");
             break;
           }
           break;
         default:
           throw "Expected directive. Got nothing";
       }
-    });
+    }
   }
 };
