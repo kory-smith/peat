@@ -8,7 +8,6 @@
   "dependencies": {
     "@doist/todoist-api-typescript": "^2.2.0",
     "@notionhq/client": "^2.2.15",
-    "got": "^12.6.1",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
