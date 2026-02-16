@@ -19,9 +19,6 @@ import {
   ];
 
   const allTodoistProjectsKeyed = await getAllTodoistProjectsKeyed();
-
-  // Sleep for a minute to tackle a race condition where the Notion API doesn't respond with the project even though it exists
-  await Bun.sleep(60_000)
   const allNotionProjectsKeyed = await getAllNotionProjectsKeyed();
 
   const masterObj = createMasterObject(

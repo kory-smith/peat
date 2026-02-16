@@ -3,6 +3,7 @@ import {
   applyStatusToNotionPage,
   createNotionChildPage,
   createResourceDatabase,
+  getAllNotionProjectsKeyed,
   MassagedNotionDatabase,
   PROJECTS_DATABASE_ID,
   WROJECTS_DATABASE_ID,
@@ -131,13 +132,20 @@ export const executeDirectives = async (
 ) => {
   for (const projectName in projectsWithDirectives) {
     const project = projectsWithDirectives[projectName];
-    project.directives.forEach(async (directive) => {
+    for (const directive of project.directives) {
       switch (directive) {
         case directives.createInNotionAndLinkInTodoist:
           if (project.todoistId) {
             const databaseIdToUse = project.work
               ? WROJECTS_DATABASE_ID
               : PROJECTS_DATABASE_ID;
+
+            // Double-check if project exists before creating (race condition protection)
+            const freshNotionProjects = await getAllNotionProjectsKeyed();
+            if (projectName in freshNotionProjects) {
+              console.log(`Project "${projectName}" already exists in Notion. Skipping creation.`);
+              break;
+            }
 
             const createNotionPageResponse: any = await createNotionChildPage(
               databaseIdToUse,
@@ -157,18 +165,18 @@ export const executeDirectives = async (
           }
         case directives.markInProgressInNotion:
           if (project.notionId) {
-            applyStatusToNotionPage(project.notionId, "In-progress");
+            await applyStatusToNotionPage(project.notionId, "In-progress");
             break;
           }
         case directives.markCompleteInNotion:
           if (project.notionId) {
-            applyStatusToNotionPage(project.notionId, "Completed");
+            await applyStatusToNotionPage(project.notionId, "Completed");
             break;
           }
           break;
         default:
           throw "Expected directive. Got nothing";
       }
-    });
+    }
   }
 };

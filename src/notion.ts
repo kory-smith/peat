@@ -17,17 +17,38 @@ export type MassagedNotionDatabase = {
 };
 
 async function getDatabaseFromId(id: string): Promise<any[]> {
-  const databaseResponse = await notionClient.databases.query({
-    database_id: id,
-  });
-  return databaseResponse.results;
+  let allResults: any[] = [];
+  let hasMore = true;
+  let startCursor: string | undefined = undefined;
+
+  while (hasMore) {
+    const databaseResponse = await notionClient.databases.query({
+      database_id: id,
+      start_cursor: startCursor,
+    });
+
+    allResults = allResults.concat(databaseResponse.results);
+    hasMore = databaseResponse.has_more;
+    startCursor = databaseResponse.next_cursor || undefined;
+  }
+
+  return allResults;
 }
 
 function massagePage(page: any): MassagedNotionDatabase {
   // Title properties
   const nameProperty = page.properties.Name as any;
+
+  // Handle missing or empty titles
+  if (!nameProperty?.title || nameProperty.title.length === 0) {
+    throw Error(
+      `Page ${page.id} has no title. All project pages must have a title.`
+    );
+  }
+
   const titleObject = nameProperty.title[0] as any;
   const title = titleObject.text.content;
+
   // Parent properties
   const datbaseParent = page.parent;
   if (datbaseParent.type === "database_id") {
