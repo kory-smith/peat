@@ -1,32 +1,35 @@
-import { TodoistApi, Project } from "@doist/todoist-api-typescript";
+import { TodoistApi, type PersonalProject } from "@doist/todoist-api-typescript";
 import { Dictionary, keyBy } from "lodash";
 
 const todoist = new TodoistApi(process.env.TODOIST_TOKEN!);
 
-async function getAllProjects() {
-  return await todoist.getProjects();
+async function getAllProjects(): Promise<PersonalProject[]> {
+  const response = await todoist.getProjects();
+  return response.results.filter(
+    (p): p is PersonalProject => "parentId" in p
+  );
 }
 
-function getProjectIdFromName(projectName: string, projects: Project[]) {
+function getProjectIdFromName(projectName: string, projects: PersonalProject[]) {
   const project = projects.find((project) => project.name === projectName);
   return project?.id;
 }
 
 export async function addURLToTodoistProjectAsTask(
   url: string,
-  projectId: number
+  projectId: string
   ) {
-  const labels = await todoist.getLabels()
-  const headerNoteLabel = labels.find(label => label.name === "Header/Note")!
+  const response = await todoist.getLabels()
+  const headerNoteLabel = response.results.find(label => label.name === "Header/Note")!
   return await todoist.addTask({
     content: `* [Link to Notion project](${url})`,
-    projectId: String(projectId),
+    projectId,
     order: 0,
     labels: [headerNoteLabel.name]
   });
 }
 
-export type enhancedTodoistProject = Project & {
+export type enhancedTodoistProject = PersonalProject & {
   work: Boolean;
   personal: Boolean;
 };

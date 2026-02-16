@@ -32,7 +32,7 @@ export const createMasterObject = (
   for (const projectDictionary of allProjects) {
     for (const key in projectDictionary) {
       const currentProject = projectDictionary[key];
-      if ("commentCount" in currentProject) {
+      if ("childOrder" in currentProject) {
         masterObject[key]["todoist"] = currentProject;
       }
       if ("status" in currentProject) {
@@ -80,7 +80,7 @@ type ProjectsWithDirectives = {
   [project: string]: {
     directives: directives[];
     notionId?: string;
-    todoistId?: number;
+    todoistId?: string;
     work?: Boolean;
   };
 };
